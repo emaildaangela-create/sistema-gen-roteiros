@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GEN — Gerador de Roteiros Técnicos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --az:#1a365d;--az2:#2c5282;--az3:#3182ce;--azc:#ebf4ff;--azb:#bee3f8;
+  --vd:#276749;--vdc:#f0fff4;--vdb:#9ae6b4;
+  --am:#744210;--amc:#fffbeb;--amb:#fbd38d;
+  --vm:#9b2c2c;--vmc:#fff5f5;--vmb:#fed7d7;
+  --ci:#4a5568;--cib:#e2e8f0;--cic:#f7fafc;
+  --tx:#1a202c;--wh:#fff;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(0,0,0,.10);
+  --r:10px;
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh;font-size:13px}
+
+/* ── TOPBAR ─────────────────────────────────────────────────────── */
+.topbar{
+  background:linear-gradient(135deg,var(--az) 0%,var(--az2) 100%);
+  color:#fff;padding:0 24px;display:flex;align-items:center;height:54px;
+  box-shadow:0 2px 12px rgba(26,54,93,.35);position:sticky;top:0;z-index:200;gap:0
+}
+.logo{font-size:15px;font-weight:700;letter-spacing:.5px;margin-right:20px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.logo-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:600;letter-spacing:.8px}
+.tabs{display:flex;height:100%;flex:1}
+.tab{padding:0 16px;height:100%;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;transition:all .15s;opacity:.55;white-space:nowrap}
+.tab:hover{opacity:.85;background:rgba(255,255,255,.06)}
+.tab.active{opacity:1;border-bottom-color:rgba(255,255,255,.7)}
+.tab-badge{background:rgba(255,255,255,.15);border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700}
+.tab-adm{background:#e53e3e;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:800;letter-spacing:.3px}
+
+/* ── SETUP OVERLAY ───────────────────────────────────────────────── */
+.setup-overlay{
+  position:fixed;inset:0;background:linear-gradient(135deg,#1a365d 0%,#2c5282 60%,#2b6cb0 100%);
+  z-index:500;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:0;
+}
+.setup-overlay.hidden{display:none}
+.setup-box{
+  background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);
+  width:540px;max-width:95vw;overflow:hidden;
+}
+.setup-head{
+  background:linear-gradient(135deg,#1a365d,#2c5282);
+  padding:28px 32px;color:#fff;
+}
+.setup-head h2{font-size:18px;font-weight:700;margin-bottom:6px}
+.setup-head p{font-size:12px;opacity:.75;line-height:1.5}
+.setup-body{padding:28px 32px;display:flex;flex-direction:column;gap:16px}
+.setup-item{
+  border:1.5px solid var(--cib);border-radius:10px;overflow:hidden;
+  transition:border-color .15s;
+}
+.setup-item.ok{border-color:var(--vdb)}
+.setup-item-head{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  background:var(--cic);cursor:pointer;transition:background .15s
+}
+.setup-item-head:hover{background:#f0f4f8}
+.setup-item.ok .setup-item-head{background:var(--vdc)}
+.sih-ico{font-size:18px;flex-shrink:0}
+.sih-info{flex:1}
+.sih-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ci)}
+.sih-status{font-size:11px;color:#718096;margin-top:1px}
+.setup-item.ok .sih-status{color:var(--vd);font-weight:600}
+.sih-btn{
+  font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;border:none;cursor:pointer;
+  background:var(--az3);color:#fff;transition:all .12s;white-space:nowrap
+}
+.sih-btn:hover{background:#2b6cb0}
+.setup-item.ok .sih-btn{background:var(--cib);color:var(--ci)}
+.setup-item-body{
+  padding:10px 16px 12px;border-top:1px solid var(--cib);
+  background:#fff;display:none
+}
+.setup-item.open .setup-item-body{display:block}
+.setup-note{font-size:10px;color:#718096;margin-top:6px;line-height:1.4}
+.setup-footer{padding:20px 32px;border-top:1px solid var(--cib);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.setup-footer p{font-size:11px;color:#718096}
+
+/* ── PAGES ───────────────────────────────────────────────────────── */
+.page{display:none;max-width:980px;margin:20px auto;padding:0 14px 80px}
+.page.active{display:block}
+
+/* ── CARDS ───────────────────────────────────────────────────────── */
+.card{background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
+.ch{background:var(--azc);border-bottom:2px solid var(--azb);padding:10px 18px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.ch h2{font-size:11px;font-weight:700;color:var(--az);text-transform:uppercase;letter-spacing:.5px}
+.ch-left{display:flex;align-items:center;gap:8px}
+.ch-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--az);color:#fff;letter-spacing:.3px}
+.cb{padding:18px}
+
+/* ── FORM ────────────────────────────────────────────────────────── */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg.g3{grid-template-columns:1fr 1fr 1fr}
+.fg.g1{grid-template-columns:1fr}
+.f{display:flex;flex-direction:column;gap:4px}
+.f.s2{grid-column:span 2}.f.s3{grid-column:span 3}
+.f label{font-size:10px;font-weight:700;color:var(--ci);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:5px}
+.req{color:var(--vm);font-size:13px}
+.auto-tag{background:var(--vdc);color:var(--vd);font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700;border:1px solid var(--vdb)}
+.f input,.f select,.f textarea{
+  border:1.5px solid var(--cib);border-radius:7px;padding:8px 11px;
+  font-size:13px;font-family:var(--font);background:#fafafa;
+  transition:border-color .15s,box-shadow .15s;width:100%;color:var(--tx)
+}
+.f input:focus,.f select:focus,.f textarea:focus{
+  outline:none;border-color:var(--az3);
+  box-shadow:0 0 0 3px rgba(49,130,206,.1);background:#fff
+}
+.f input[readonly]{background:var(--vdc);color:var(--vd);border-color:var(--vdb);cursor:default;font-weight:600}
+.f textarea{resize:vertical;min-height:75px;line-height:1.6}
+.f .hint{font-size:10px;color:#718096;margin-top:2px;line-height:1.3}
+.sdiv{display:flex;align-items:center;gap:8px;margin:16px 0 12px}
+.sdiv span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#a0aec0;white-space:nowrap}
+.sdiv::before,.sdiv::after{content:'';flex:1;height:1px;background:var(--cib)}
+
+/* ── WIZARD ──────────────────────────────────────────────────────── */
+.wsteps{
+  display:flex;background:var(--wh);border-radius:var(--r);
+  box-shadow:var(--sh);overflow-x:auto;margin-bottom:14px;
+  border:1px solid var(--cib)
+}
+.wstep{
+  flex:0 0 auto;padding:10px 12px;text-align:center;cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .15s;
+  font-size:10px;font-weight:700;color:#a0aec0;
+  border-right:1px solid var(--cib);user-select:none;min-width:88px
+}
+.wstep:last-child{border-right:none}
+.wstep:hover{background:var(--azc);color:var(--az2)}
+.wstep.active{background:var(--azc);border-bottom-color:var(--az3);color:var(--az)}
+.wstep.done{background:var(--vdc);border-bottom-color:var(--vd);color:var(--vd)}
+.wstep.delegated{background:#faf5ff;border-bottom-color:#805ad5;color:#553c9a}
+.wstep-ico{font-size:16px;display:block;margin-bottom:3px}
+.fp{display:none}.fp.active{display:block}
+
+/* ── BUTTONS ─────────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:8px 15px;border:none;border-radius:7px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .12s;font-family:var(--font);white-space:nowrap
+}
+.btn-p{background:var(--az3);color:#fff;box-shadow:0 2px 6px rgba(49,130,206,.25)}
+.btn-p:hover{background:#2b6cb0;transform:translateY(-1px)}
+.btn-s{background:#38a169;color:#fff;box-shadow:0 2px 6px rgba(56,161,105,.2)}
+.btn-s:hover{background:#2f855a}
+.btn-d{background:#e53e3e;color:#fff}.btn-d:hover{background:#c53030}
+.btn-o{background:var(--wh);border:1.5px solid var(--cib);color:var(--ci)}
+.btn-o:hover{border-color:var(--az3);color:var(--az3);background:var(--azc)}
+.btn-lg{padding:13px 24px;font-size:14px;border-radius:10px}
+.btn-full{width:100%;justify-content:center}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ── STATUS ──────────────────────────────────────────────────────── */
+.status{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;display:none}
+.status.loading{background:var(--azc);color:var(--az2);border:1px solid var(--azb);display:block}
+.status.success{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb);display:block}
+.status.error{background:var(--vmc);color:var(--vm);border:1px solid var(--vmb);display:block}
+
+/* ── RESP BANNER ─────────────────────────────────────────────────── */
+.resp-banner{border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;border:1.5px solid}
+.rbi{font-size:20px;flex-shrink:0;margin-top:1px}
+.resp-banner strong{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.resp-banner p{font-size:11px;opacity:.75;line-height:1.4}
+
+/* ── SERVIÇOS CHECKLIST ──────────────────────────────────────────── */
+.srv-toolbar{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.srv-toolbar a{font-size:10px;font-weight:600;color:var(--az3);cursor:pointer;text-decoration:none}
+.srv-toolbar a:hover{text-decoration:underline}
+.srv-count{margin-left:auto;font-size:10px;color:#718096}
+.srv-list{display:flex;flex-direction:column;gap:3px}
+.srw{
+  display:flex;align-items:flex-start;gap:8px;padding:8px 10px;
+  border-radius:7px;cursor:pointer;border:1.5px solid transparent;
+  transition:all .12s;background:var(--cic)
+}
+.srw:hover{background:var(--azc);border-color:var(--azb)}
+.srw.sel{background:#ebf8ff;border-color:var(--az3)}
+.schk{
+  width:16px;height:16px;border:2px solid var(--cib);border-radius:4px;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  margin-top:2px;transition:all .12s;font-size:10px;font-weight:700
+}
+.srw.sel .schk{background:var(--az3);border-color:var(--az3);color:#fff}
+.snm{font-size:12px;font-weight:600;flex:1;line-height:1.3;color:var(--tx)}
+.snormas{font-size:9px;color:#718096;margin-top:2px;font-family:var(--mono)}
+.sexp{
+  font-size:9px;color:var(--az3);cursor:pointer;padding:2px 7px;
+  border-radius:4px;border:1px solid var(--azb);background:var(--wh);
+  flex-shrink:0;margin-top:1px;font-weight:600;white-space:nowrap
+}
+.sdtl{
+  display:none;padding:9px 11px 10px 34px;
+  background:#f0f7ff;border-top:1px solid var(--azb);
+  font-size:11px;color:var(--ci);line-height:1.7;border-radius:0 0 6px 6px
+}
+.sdtl.open{display:block}
+
+/* ── DELEGAÇÃO ───────────────────────────────────────────────────── */
+.del-box{
+  background:#faf5ff;border:1.5px solid #d6bcfa;
+  border-radius:8px;padding:12px 14px;margin-bottom:14px
+}
+.del-box h3{font-size:10px;font-weight:700;color:#553c9a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.del-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px}
+.del-toggle input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#805ad5}
+.del-toggle span{font-size:12px;font-weight:500;color:#553c9a}
+.del-flds{display:none;margin-top:10px}
+.del-flds.open{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── DISC SELECTOR ───────────────────────────────────────────────── */
+.disc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:8px;margin-bottom:4px}
+.disc-item{
+  display:flex;align-items:center;gap:9px;padding:10px 12px;
+  background:var(--wh);border:2px solid var(--cib);border-radius:8px;
+  cursor:pointer;transition:all .15s;user-select:none
+}
+.disc-item:hover{border-color:var(--azb);background:var(--azc)}
+.disc-item.on{border-width:2px}
+.disc-item input[type=checkbox]{width:15px;height:15px;cursor:pointer;flex-shrink:0}
+.disc-item-ico{font-size:17px;flex-shrink:0}
+.disc-item-nm{font-size:11px;font-weight:600;flex:1;line-height:1.3;color:var(--tx)}
+
+/* ── PROJETOS ────────────────────────────────────────────────────── */
+.pj-grid{display:flex;flex-direction:column;gap:8px}
+.pj-card{
+  background:var(--wh);border-radius:var(--r);
+  border:1.5px solid var(--cib);overflow:hidden;transition:all .12s
+}
+.pj-card:hover{box-shadow:var(--sh2);border-color:var(--azb)}
+.pj-hdr{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;cursor:pointer}
+.pj-num{
+  font-size:9px;font-weight:700;color:var(--az3);background:var(--azc);
+  padding:2px 7px;border-radius:4px;font-family:var(--mono);white-space:nowrap;margin-top:2px
+}
+.pj-ttl{font-weight:700;font-size:13px;flex:1;line-height:1.25}
+.pj-unit{font-size:10px;color:#718096;margin-top:2px}
+.pj-meta{display:flex;gap:12px;padding:2px 14px 9px;flex-wrap:wrap}
+.pj-mi .pj-ml{font-size:8px;font-weight:700;text-transform:uppercase;color:#a0aec0;letter-spacing:.4px}
+.pj-mi .pj-mv{font-size:11px;font-weight:600}
+.sbg{font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;text-transform:uppercase}
+.s-r{background:var(--cic);color:#718096;border:1px solid var(--cib)}
+.s-em{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb)}
+.pj-act{
+  display:flex;gap:5px;padding:7px 14px;
+  border-top:1px solid var(--cib);background:#fafbff;justify-content:flex-end
+}
+
+/* ── WIZARD NAV ──────────────────────────────────────────────────── */
+.wnav{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 18px;background:var(--wh);border-radius:var(--r);
+  box-shadow:var(--sh);margin-top:14px;gap:10px;border:1px solid var(--cib)
+}
+
+/* ── REVIEW ──────────────────────────────────────────────────────── */
+.rev-row{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--cib);align-items:flex-start}
+.rev-ico{font-size:13px;flex-shrink:0;margin-top:1px}
+.rev-lbl{font-size:10px;font-weight:700;color:var(--ci);min-width:175px;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px}
+.rev-val{font-size:12px;color:var(--tx);flex:1;line-height:1.4}
+.rev-empty{font-style:italic;color:#a0aec0}
+.rev-sec{font-size:10px;font-weight:700;color:var(--az);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── BANCO VISUALIZAR ────────────────────────────────────────────── */
+.atab-bar{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
+.atab{padding:6px 13px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--cib);color:var(--ci);background:var(--wh);transition:all .12s}
+.atab.active{background:var(--azc);border-color:var(--az3);color:var(--az2)}
+.acont{display:none}.acont.active{display:block}
+.stbl{width:100%;border-collapse:collapse;font-size:11px}
+.stbl th{background:var(--cic);padding:7px 11px;text-align:left;font-weight:700;font-size:9px;color:#718096;text-transform:uppercase;border-bottom:2px solid var(--cib);letter-spacing:.4px}
+.stbl td{padding:7px 11px;border-bottom:1px solid var(--cib);vertical-align:top}
+.stbl tr:hover td{background:#fafbfc}
+.tip{
+  background:var(--amc);border:1px solid var(--amb);border-radius:8px;
+  padding:10px 14px;font-size:11px;color:var(--am);
+  display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;line-height:1.5
+}
+.tbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.fsrch{flex:1;min-width:160px;border:1.5px solid var(--cib);border-radius:7px;padding:7px 10px;font-size:11px;font-family:var(--font)}
+.fsel{border:1.5px solid var(--cib);border-radius:7px;padding:7px 9px;font-size:11px;background:var(--wh);cursor:pointer;font-family:var(--font)}
+.empty{text-align:center;padding:40px 16px;color:#a0aec0;font-size:13px}
+.bs-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.bs-ok{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb)}
+.bs-no{background:var(--amc);color:var(--am);border:1px solid var(--amb)}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .fg,.fg.g3{grid-template-columns:1fr}
+  .f.s2,.f.s3{grid-column:span 1}
+  .wsteps{overflow-x:auto}
+  .del-flds.open{grid-template-columns:1fr}
+  .setup-body{padding:20px}
+  .setup-footer{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ SETUP OVERLAY ═══════ -->
+<div class="setup-overlay" id="setupOverlay">
+  <div class="setup-box">
+    <div class="setup-head">
+      <h2>⚙️ Configuração Inicial</h2>
+      <p>O sistema precisa localizar os arquivos da pasta <strong>banco/</strong> antes de iniciar.<br>
+      Selecione cada arquivo uma vez — o sistema vai lembrar.</p>
+    </div>
+    <div class="setup-body">
+
+      <div class="setup-item" id="si-cad">
+        <div class="setup-item-head" onclick="toggleSetupItem('cad')">
+          <span class="sih-ico">📋</span>
+          <div class="sih-info">
+            <div class="sih-label">BANCO_CADASTROS.xlsx</div>
+            <div class="sih-status" id="ss-cad">Unidades, responsáveis, modalidades — não carregado</div>
+          </div>
+          <label class="sih-btn" style="cursor:pointer" onclick="event.stopPropagation()">
+            Selecionar arquivo
+            <input type="file" accept=".xlsx" id="fi-cad" style="display:none" onchange="carregarCadastros()">
+          </label>
+        </div>
+      </div>
+
+      <div class="setup-item" id="si-esp">
+        <div class="setup-item-head" onclick="toggleSetupItem('esp')">
+          <span class="sih-ico">📐</span>
+          <div class="sih-info">
+            <div class="sih-label">BANCO_ESPECIFICACOES.xlsx</div>
+            <div class="sih-status" id="ss-esp">Disciplinas técnicas e textos construtivos — não carregado</div>
+          </div>
+          <label class="sih-btn" style="cursor:pointer" onclick="event.stopPropagation()">
+            Selecionar arquivo
+            <input type="file" accept=".xlsx" id="fi-esp" style="display:none" onchange="carregarEspecificacoes()">
+          </label>
+        </div>
+      </div>
+
+      <div class="setup-item" id="si-tpl">
+        <div class="setup-item-head" onclick="toggleSetupItem('tpl')">
+          <span class="sih-ico">📄</span>
+          <div class="sih-info">
+            <div class="sih-label">TEMPLATE.docx</div>
+            <div class="sih-status" id="ss-tpl">Template Word com marcadores — não carregado</div>
+          </div>
+          <label class="sih-btn" style="cursor:pointer" onclick="event.stopPropagation()">
+            Selecionar arquivo
+            <input type="file" accept=".docx" id="fi-tpl" style="display:none" onchange="carregarTemplate()">
+          </label>
+        </div>
+      </div>
+
+    </div>
+    <div class="setup-footer">
+      <p id="setup-footer-msg">Selecione os 3 arquivos para iniciar</p>
+      <button class="btn btn-p" id="btn-entrar" onclick="entrarNoSistema()" disabled>
+        Entrar no sistema →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ TOPBAR ═══════ -->
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-badge">GEN</span>
+    Roteiros Técnicos
+  </div>
+  <div class="tabs">
+    <div class="tab" onclick="showPage('projetos')" id="tab-projetos">
+      📁 Projetos <span class="tab-badge" id="proj-count-badge">0</span>
+    </div>
+    <div class="tab active" onclick="showPage('formulario')" id="tab-formulario">
+      📝 Novo Roteiro
+    </div>
+    <div class="tab" onclick="showPage('banco')" id="tab-banco">
+      🗄️ Banco de Dados <span class="tab-adm">ADM</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PROJETOS ═══════ -->
+<div class="page" id="page-projetos">
+  <div class="card">
+    <div class="ch">
+      <div class="ch-left"><span>📁</span><h2>Projetos Salvos</h2></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-o" onclick="exportarProjetos()">📤 Exportar .json</button>
+        <label class="btn btn-o" style="cursor:pointer">
+          📥 Importar
+          <input type="file" accept=".json" style="display:none" onchange="importarProjetos(this)">
+        </label>
+        <button class="btn btn-p" onclick="novoFormulario()">+ Novo Roteiro</button>
+      </div>
+    </div>
+    <div class="cb">
+      <div class="tbar">
+        <input class="fsrch" id="pj-srch" placeholder="🔍 Buscar por unidade ou serviço..." oninput="renderProjetos()">
+        <select class="fsel" id="pj-fst" onchange="renderProjetos()">
+          <option value="">Todos os status</option>
+          <option value="rascunho">Rascunho</option>
+          <option value="emitido">Emitido</option>
+        </select>
+      </div>
+      <div id="pj-grid" class="pj-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FORMULÁRIO ═══════ -->
+<div class="page active" id="page-formulario">
+  <div class="wsteps" id="wsteps"></div>
+
+  <!-- ETAPA 1 -->
+  <div class="fp active" id="fp-1">
+    <div class="card">
+      <div class="ch">
+        <div class="ch-left">
+          <span class="ch-tag">ETAPA 1</span>
+          <h2>Identificação da Unidade e Obra</h2>
+        </div>
+        <span id="editing-badge" style="display:none;font-size:10px;font-weight:700;color:var(--vd);background:var(--vdc);border:1px solid var(--vdb);padding:2px 8px;border-radius:5px"></span>
+      </div>
+      <div class="cb">
+        <div class="fg">
+          <div class="f s2">
+            <label>Unidade <span class="req">*</span></label>
+            <select id="sel-unidade" onchange="onUnidade()"><option value="">— Selecione a unidade —</option></select>
+          </div>
+          <div class="f s2">
+            <label>Nome completo <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-UNIDADE" readonly>
+          </div>
+          <div class="f s2">
+            <label>Endereço <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-ENDERECO" readonly>
+          </div>
+          <div class="f">
+            <label>CNPJ <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-CNPJ" readonly>
+          </div>
+          <div class="f">
+            <label>Sigla <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-SIGLA" readonly>
+          </div>
+        </div>
+        <div class="sdiv"><span>Objeto e Regime</span></div>
+        <div class="fg">
+          <div class="f s2">
+            <label>Tipo de Serviço <span class="req">*</span></label>
+            <select id="sel-servico" onchange="document.getElementById('f-SERVICO').placeholder=this.value"><option value="">— Selecione —</option></select>
+          </div>
+          <div class="f s2">
+            <label>Nome personalizado <span style="font-size:9px;color:#718096;text-transform:none;font-weight:400">(deixe em branco para usar o selecionado)</span></label>
+            <input type="text" id="f-SERVICO" placeholder="">
+          </div>
+          <div class="f">
+            <label>Regime de Contratação <span class="req">*</span></label>
+            <select id="sel-modalidade" onchange="document.getElementById('f-REGIME_CONTRATACAO').value=this.options[this.selectedIndex].text"><option value="">— Selecione —</option></select>
+            <input type="hidden" id="f-REGIME_CONTRATACAO">
+          </div>
+          <div class="f">
+            <label>Nº sequencial do documento <span class="req">*</span></label>
+            <input type="text" id="f-SEQ" placeholder="001" maxlength="3" oninput="this.value=this.value.replace(/\D/g,'');atualizaCodigo()">
+            <div class="hint">3 dígitos — ex: 001, 002...</div>
+          </div>
+        </div>
+        <div class="fg g3" style="margin-top:10px">
+          <div class="f">
+            <label>Código do Documento <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-CODIGO" readonly style="font-family:var(--mono);font-size:11px">
+          </div>
+          <div class="f">
+            <label>Data de Emissão <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-DATA" readonly>
+          </div>
+          <div class="f">
+            <label>Revisão <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-REVISAO" readonly>
+          </div>
+        </div>
+        <div class="sdiv"><span>Controle de Revisão</span></div>
+        <div class="fg g3">
+          <div class="f">
+            <label>Índice — Descrição <span class="req">*</span></label>
+            <input type="text" id="f-INDICE_REV" placeholder="Emissão inicial">
+          </div>
+          <div class="f">
+            <label>Elaborado por <span class="req">*</span></label>
+            <select id="sel-elaborado" onchange="document.getElementById('f-ELABORADO').value=this.options[this.selectedIndex].dataset.ini||''"><option value="">— Selecione —</option></select>
+            <input type="hidden" id="f-ELABORADO">
+          </div>
+          <div class="f">
+            <label>Verificado por</label>
+            <select id="sel-verificado" onchange="document.getElementById('f-VERIFICADO').value=this.options[this.selectedIndex].dataset.ini||''"><option value="">— Selecione —</option></select>
+            <input type="hidden" id="f-VERIFICADO">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ETAPA 2 -->
+  <div class="fp" id="fp-2">
+    <div class="card">
+      <div class="ch">
+        <div class="ch-left"><span class="ch-tag">ETAPA 2</span><h2>Escopo, Responsáveis e Disciplinas</h2></div>
+      </div>
+      <div class="cb">
+        <div class="fg">
+          <div class="f">
+            <label>Fiscal do Contrato <span class="req">*</span></label>
+            <select id="sel-fiscal" onchange="document.getElementById('f-FISCAL_CONTRATO').value=this.options[this.selectedIndex].text.split(' (')[0]"><option value="">— Selecione —</option></select>
+            <input type="hidden" id="f-FISCAL_CONTRATO">
+          </div>
+          <div class="f">
+            <label>Gestor do Contrato <span class="req">*</span></label>
+            <select id="sel-gestor" onchange="document.getElementById('f-GESTOR_CONTRATO').value=this.options[this.selectedIndex].text.split(' (')[0]"><option value="">— Selecione —</option></select>
+            <input type="hidden" id="f-GESTOR_CONTRATO">
+          </div>
+          <div class="f">
+            <label>Prazo de Execução <span class="req">*</span></label>
+            <input type="text" id="f-PRAZO_EXECUCAO" placeholder="Ex: 180 (cento e oitenta) dias corridos">
+          </div>
+          <div class="f">
+            <label>Prazo de Vigência <span class="req">*</span></label>
+            <input type="text" id="f-PRAZO_VIGENCIA" placeholder="Ex: 360 (trezentos e sessenta) dias corridos">
+          </div>
+          <div class="f s2">
+            <label>Telefone do Fiscal</label>
+            <input type="text" id="f-TELEFONE_FISCAL" placeholder="(21) 9XXXX-XXXX">
+          </div>
+        </div>
+        <div class="sdiv"><span>Justificativa e Escopo</span></div>
+        <div class="fg g1">
+          <div class="f">
+            <label>Justificativa para Contratação <span class="req">*</span></label>
+            <textarea id="f-JUSTIFICATIVA" rows="5" placeholder="Descreva o contexto da necessidade, estado atual da edificação e objetivo da intervenção. Use Enter para separar parágrafos."></textarea>
+          </div>
+          <div class="f">
+            <label>Relação dos Principais Serviços</label>
+            <textarea id="f-RELACAO_SERVICOS" rows="3" placeholder="Liste os principais serviços a executar..."></textarea>
+          </div>
+          <div class="f">
+            <label>Demolições e Desmontagens</label>
+            <textarea id="f-DESCRICAO_DEMOLICOES" rows="2" placeholder="Descreva as demolições e desmontagens previstas..."></textarea>
+          </div>
+          <div class="f">
+            <label>Equipe Técnica Mínima Exigida</label>
+            <textarea id="f-EQUIPE_TECNICA" rows="2" placeholder="Ex: 1 Engenheiro Civil ou Arquiteto (RT residente), 1 Mestre de Obras..."></textarea>
+          </div>
+        </div>
+        <div class="sdiv"><span>Disciplinas desta obra — selecione as que fazem parte do escopo</span></div>
+        <div id="disc-selector" class="disc-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ETAPAS DISCIPLINAS (dinâmico) -->
+  <div id="fps-disciplinas"></div>
+
+  <!-- ETAPA REVISÃO -->
+  <div class="fp" id="fp-rev">
+    <div class="card">
+      <div class="ch"><div class="ch-left"><span class="ch-tag">REVISAR</span><h2>Revisão Final</h2></div></div>
+      <div class="cb">
+        <div id="review-content"></div>
+        <div style="margin-top:20px">
+          <button class="btn btn-s btn-lg btn-full" onclick="salvarEGerar()">
+            📄 Salvar e Gerar Roteiro Técnico (.docx)
+          </button>
+          <div id="status" class="status"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wnav">
+    <button class="btn btn-o" id="btn-prev" onclick="navStep(-1)" disabled>← Anterior</button>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-o" onclick="salvarRascunho()">💾 Salvar rascunho</button>
+    </div>
+    <button class="btn btn-p" id="btn-next" onclick="navStep(1)">Próximo →</button>
+  </div>
+</div>
+
+<!-- ═══════ BANCO ═══════ -->
+<div class="page" id="page-banco">
+  <div class="card">
+    <div class="ch"><div class="ch-left"><span>🗄️</span><h2>Banco de Dados</h2></div>
+      <button class="btn btn-o" onclick="document.getElementById('setupOverlay').classList.remove('hidden')">⚙️ Recarregar arquivos</button>
+    </div>
+    <div class="cb">
+      <div class="tip">
+        📌 <span>Os arquivos ficam na pasta <strong>banco/</strong> junto com o sistema. Para atualizar dados, edite os arquivos Excel ou o TEMPLATE.docx diretamente e clique em <strong>"Recarregar arquivos"</strong> acima.</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="bs-tag" id="bt-cad">⚠️ BANCO_CADASTROS — não carregado</span>
+        <span class="bs-tag" id="bt-esp">⚠️ BANCO_ESPECIFICACOES — não carregado</span>
+        <span class="bs-tag" id="bt-tpl">⚠️ TEMPLATE.docx — não carregado</span>
+      </div>
+      <div class="atab-bar">
+        <div class="atab active" id="atab-unidades" onclick="showBancoTab('unidades')">🏛️ Unidades</div>
+        <div class="atab" id="atab-responsaveis" onclick="showBancoTab('responsaveis')">👤 Responsáveis</div>
+        <div class="atab" id="atab-servicos" onclick="showBancoTab('servicos')">🔧 Serviços</div>
+        <div class="atab" id="atab-disciplinas" onclick="showBancoTab('disciplinas')">📐 Disciplinas</div>
+      </div>
+      <div class="acont active" id="ac-unidades">
+        <table class="stbl"><thead><tr><th>Sigla</th><th>Nome</th><th>Endereço</th><th>CNPJ</th></tr></thead>
+        <tbody id="tb-unidades"></tbody></table>
+      </div>
+      <div class="acont" id="ac-responsaveis">
+        <table class="stbl"><thead><tr><th>Nome</th><th>Iniciais</th><th>Cargo</th><th>CREA/CAU</th><th>Papel</th></tr></thead>
+        <tbody id="tb-responsaveis"></tbody></table>
+      </div>
+      <div class="acont" id="ac-servicos">
+        <table class="stbl"><thead><tr><th>Nome do Serviço</th><th>Descrição Resumida</th></tr></thead>
+        <tbody id="tb-servicos"></tbody></table>
+      </div>
+      <div class="acont" id="ac-disciplinas">
+        <table class="stbl"><thead><tr><th>Grupo</th><th>Serviço</th><th>Chave</th><th>Normas</th></tr></thead>
+        <tbody id="tb-disciplinas"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="hidden" id="editing-id">
+
+<script>
+// ─── CONFIG DISCIPLINAS ───────────────────────────────────────────────────────
+var DISC_CONFIG = [
+  {id:"civil",          nome:"Obras Civis",                         ico:"🏗️", cor:"#2D6A4F"},
+  {id:"eletrica",       nome:"Instalações Elétricas",               ico:"⚡",  cor:"#7B3F00"},
+  {id:"hidrossanitaria",nome:"Instalações Hidrossanitárias",        ico:"🚿",  cor:"#1A535C"},
+  {id:"ppci",           nome:"PPCI — Prev. e Combate a Incêndio",   ico:"🔥",  cor:"#9B2C2C"},
+  {id:"climatizacao",   nome:"Climatização, Mecânica e Elevadores", ico:"❄️",  cor:"#1A365D"},
+  {id:"dados",          nome:"Dados, Voz e CFTV",                   ico:"🔌",  cor:"#553C9A"},
+  {id:"paisagismo",     nome:"Paisagismo e Obras Externas",          ico:"🌿",  cor:"#276749"},
+];
+
+// ─── ESTADO ───────────────────────────────────────────────────────────────────
+var curStep = 1;
+var STEPS = [];
+var discsSel = [];
+var DB = {cad: null, esp: null, tplBytes: null};
+
+// ─── LS ───────────────────────────────────────────────────────────────────────
+var LS = {
+  projs: function(){ try{ var s=localStorage.getItem('gen_projs'); return s?JSON.parse(s):[]; }catch(e){ return []; } },
+  sProjs: function(v){ localStorage.setItem('gen_projs', JSON.stringify(v)); }
+};
+
+// ─── SETUP ───────────────────────────────────────────────────────────────────
+function toggleSetupItem(id){
+  var el = document.getElementById('si-'+id);
+  el.classList.toggle('open');
+}
+
+function carregarCadastros(){
+  var f = document.getElementById('fi-cad').files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(e){
+    try{
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, {type:'array'});
+      var lrng = function(aba){ var ws=wb.Sheets[aba]; return ws?XLSX.utils.sheet_to_json(ws,{defval:'',range:2}):[] };
+      DB.cad = {
+        unidades:    lrng('UNIDADES').filter(function(r){ return r.SIGLA && r.SIGLA!=='SIGLA'; }),
+        responsaveis:lrng('RESPONSAVEIS').filter(function(r){ return r.NOME && r.NOME!=='NOME'; }),
+        modalidades: lrng('MODALIDADES').filter(function(r){ return r.MODALIDADE && r.MODALIDADE!=='MODALIDADE'; }),
+        servicos:    lrng('TIPOS_SERVICO').filter(function(r){ return r.NOME_SERVICO && r.NOME_SERVICO!=='NOME_SERVICO'; })
+      };
+      document.getElementById('si-cad').classList.add('ok');
+      document.getElementById('ss-cad').textContent = DB.cad.unidades.length+' unidades · '+DB.cad.responsaveis.length+' responsáveis · '+DB.cad.servicos.length+' serviços';
+      popularSelects();
+      verificarSetupCompleto();
+      atualizarBancoTags();
+    }catch(err){
+      document.getElementById('ss-cad').textContent = '❌ Erro: '+err.message;
+    }
+  };
+  r.readAsArrayBuffer(f);
+}
+
+function carregarEspecificacoes(){
+  var f = document.getElementById('fi-esp').files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(e){
+    try{
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, {type:'array'});
+      DB.esp = {por_disciplina: {}};
+      wb.SheetNames.filter(function(n){ return n!=='INDICE'; }).forEach(function(sheetName){
+        var rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {defval:'', range:2});
+        var valid = rows.filter(function(r){ return r.CHAVE && r.CHAVE!=='CHAVE'; });
+        if(!valid.length) return;
+        var did = valid[0].CHAVE.split('|')[0];
+        if(did) DB.esp.por_disciplina[did] = valid;
+      });
+      var total = Object.values(DB.esp.por_disciplina).reduce(function(a,v){ return a+v.length; }, 0);
+      document.getElementById('si-esp').classList.add('ok');
+      document.getElementById('ss-esp').textContent = Object.keys(DB.esp.por_disciplina).length+' disciplinas · '+total+' serviços';
+      verificarSetupCompleto();
+      atualizarBancoTags();
+    }catch(err){
+      document.getElementById('ss-esp').textContent = '❌ Erro: '+err.message;
+    }
+  };
+  r.readAsArrayBuffer(f);
+}
+
+function carregarTemplate(){
+  var f = document.getElementById('fi-tpl').files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(e){
+    DB.tplBytes = new Uint8Array(e.target.result);
+    document.getElementById('si-tpl').classList.add('ok');
+    document.getElementById('ss-tpl').textContent = '✅ '+f.name+' ('+Math.round(f.size/1024)+' KB)';
+    verificarSetupCompleto();
+    atualizarBancoTags();
+  };
+  r.readAsArrayBuffer(f);
+}
+
+function verificarSetupCompleto(){
+  var ok = DB.cad && DB.esp && DB.tplBytes;
+  document.getElementById('btn-entrar').disabled = !ok;
+  if(ok){
+    document.getElementById('setup-footer-msg').textContent = '✅ Tudo pronto! Clique para entrar.';
+    document.getElementById('setup-footer-msg').style.color = '#276749';
+  } else {
+    var falt = [];
+    if(!DB.cad) falt.push('Cadastros');
+    if(!DB.esp) falt.push('Especificações');
+    if(!DB.tplBytes) falt.push('Template');
+    document.getElementById('setup-footer-msg').textContent = 'Faltam: '+falt.join(', ');
+  }
+}
+
+function entrarNoSistema(){
+  document.getElementById('setupOverlay').classList.add('hidden');
+  renderDiscFps();
+  renderBancoPreview();
+  updatePjBadge();
+}
+
+// ─── NAVEGAÇÃO ────────────────────────────────────────────────────────────────
+function showPage(p){
+  document.querySelectorAll('.page').forEach(function(e){ e.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(e){ e.classList.remove('active'); });
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('tab-'+p).classList.add('active');
+  if(p==='projetos') renderProjetos();
+  updatePjBadge();
+}
+function showBancoTab(t){
+  document.querySelectorAll('.atab').forEach(function(e){ e.classList.remove('active'); });
+  document.querySelectorAll('.acont').forEach(function(e){ e.classList.remove('active'); });
+  document.getElementById('atab-'+t).classList.add('active');
+  document.getElementById('ac-'+t).classList.add('active');
+}
+
+// ─── WIZARD ───────────────────────────────────────────────────────────────────
+function buildSteps(){
+  STEPS = [
+    {n:1, ico:'🏛️', lbl:'Identificação', fp:'fp-1'},
+    {n:2, ico:'✍️', lbl:'Escopo',         fp:'fp-2'},
+  ];
+  discsSel.forEach(function(did, i){
+    var dc = DISC_CONFIG.find(function(d){ return d.id===did; });
+    if(dc) STEPS.push({n:3+i, ico:dc.ico, lbl:dc.nome.split(' ')[0], fp:'fp-disc-'+did, discId:did});
+  });
+  STEPS.push({n:STEPS.length+1, ico:'✅', lbl:'Revisar', fp:'fp-rev'});
+}
+
+function buildWizardUI(){
+  buildSteps();
+  document.getElementById('wsteps').innerHTML = STEPS.map(function(s){
+    return '<div class="wstep" id="ws-'+s.n+'" onclick="goStep('+s.n+')">'
+      +'<span class="wstep-ico">'+s.ico+'</span>'+s.lbl+'</div>';
+  }).join('');
+  updateWizUI();
+}
+
+function updateWizUI(){
+  STEPS.forEach(function(s){
+    var el = document.getElementById('ws-'+s.n);
+    if(!el) return;
+    el.classList.remove('active','done','delegated');
+    if(s.n===curStep) el.classList.add('active');
+    else if(s.n<curStep) el.classList.add('done');
+    if(s.discId){
+      var chk = document.getElementById('del-chk-'+s.discId);
+      if(chk && chk.checked) el.classList.add('delegated');
+    }
+  });
+  document.querySelectorAll('.fp').forEach(function(p){ p.classList.remove('active'); });
+  var step = STEPS[curStep-1];
+  if(step){ var fp=document.getElementById(step.fp); if(fp) fp.classList.add('active'); }
+  document.getElementById('btn-prev').disabled = (curStep===1);
+  document.getElementById('btn-next').textContent = curStep===STEPS.length ? '✅ Gerar' : 'Próximo →';
+  if(curStep===STEPS.length) buildReview();
+  setAutoDate();
+}
+
+function navStep(d){
+  if(d>0 && curStep===STEPS.length){ salvarEGerar(); return; }
+  var n = curStep+d;
+  if(n<1||n>STEPS.length) return;
+  curStep=n; updateWizUI();
+}
+function goStep(n){ curStep=n; updateWizUI(); }
+
+function setAutoDate(){
+  var t=new Date();
+  var f=String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear();
+  var el=document.getElementById('f-DATA'); if(el&&!el._locked) el.value=f;
+  var er=document.getElementById('f-REVISAO'); if(er&&!er._locked) er.value='Rev. 00';
+}
+
+// ─── DISC SELECTOR ────────────────────────────────────────────────────────────
+function renderDiscSelector(){
+  var sel = discsSel;
+  document.getElementById('disc-selector').innerHTML = DISC_CONFIG.map(function(d){
+    var on = sel.indexOf(d.id) > -1;
+    return '<label class="disc-item'+(on?' on':'')+'" style="'+(on?'border-color:'+d.cor+';background:'+d.cor+'18':'')+'" onclick="toggleDisc(\''+d.id+'\',this)">'
+      +'<input type="checkbox" id="disc-chk-'+d.id+'" '+(on?'checked':'')+' style="accent-color:'+d.cor+'" onclick="event.stopPropagation()">'
+      +'<span class="disc-item-ico">'+d.ico+'</span>'
+      +'<span class="disc-item-nm">'+d.nome+'</span>'
+      +'</label>';
+  }).join('');
+}
+
+function toggleDisc(did){
+  var idx = discsSel.indexOf(did);
+  if(idx > -1) discsSel.splice(idx, 1);
+  else discsSel.push(did);
+  renderDiscSelector();
+  renderDiscFps();
+  buildWizardUI();
+}
+
+// ─── ETAPAS DAS DISCIPLINAS ───────────────────────────────────────────────────
+function renderDiscFps(){
+  var container = document.getElementById('fps-disciplinas');
+  container.innerHTML = '';
+  discsSel.forEach(function(did){
+    var dc = DISC_CONFIG.find(function(d){ return d.id===did; });
+    if(!dc) return;
+    var servicos = (DB.esp && DB.esp.por_disciplina[did]) ? DB.esp.por_disciplina[did] : [];
+
+    var fp = document.createElement('div');
+    fp.className = 'fp';
+    fp.id = 'fp-disc-'+did;
+
+    var srvHtml = '';
+    if(servicos.length){
+      srvHtml = '<div class="srv-toolbar">'
+        +'<a onclick="selAllDisc(\''+did+'\',true)">✓ Selecionar todos</a>'
+        +'<span style="color:#a0aec0;margin:0 4px">|</span>'
+        +'<a onclick="selAllDisc(\''+did+'\',false)">✗ Desmarcar</a>'
+        +'<span class="srv-count"><span id="sc-'+did+'">0</span> selecionado(s)</span>'
+        +'</div>'
+        +'<div class="srv-list" id="sl-'+did+'">';
+      servicos.forEach(function(s){
+        srvHtml += '<div class="srw" id="srw-'+s.CHAVE+'" onclick="toggleSrv(\''+s.CHAVE+'\',\''+did+'\')">'
+          +'<div class="schk" id="schk-'+s.CHAVE+'"></div>'
+          +'<div style="flex:1">'
+          +'<div class="snm">'+s.NOME_SERVICO+'</div>'
+          +'<div class="snormas">'+(s.NORMAS_ABNT||'')+'</div>'
+          +'</div>'
+          +'<span class="sexp" onclick="event.stopPropagation();toggleDtl(\''+s.CHAVE+'\')">▶ texto</span>'
+          +'</div>'
+          +'<div class="sdtl" id="sdtl-'+s.CHAVE+'">'+(s.TEXTO_TECNICO||'').replace(/\n/g,'<br>')+'</div>';
+      });
+      srvHtml += '</div>';
+    } else {
+      srvHtml = '<div class="empty" style="padding:18px">⚠️ Importe o BANCO_ESPECIFICACOES.xlsx para ver os serviços</div>';
+    }
+
+    fp.innerHTML =
+      '<div class="resp-banner" style="background:'+dc.cor+'12;border-color:'+dc.cor+'40">'
+      +'<span class="rbi">'+dc.ico+'</span>'
+      +'<div><strong style="color:'+dc.cor+'">'+dc.nome+'</strong>'
+      +'<p>Selecione os serviços do escopo e informe o responsável técnico desta disciplina.</p></div>'
+      +'</div>'
+
+      +'<div class="del-box">'
+      +'<h3>🔄 Delegação</h3>'
+      +'<div class="del-toggle"><input type="checkbox" id="del-chk-'+did+'" onchange="toggleDelegacao(\''+did+'\')"><span>Esta disciplina será preenchida por outro profissional</span></div>'
+      +'<div class="del-flds" id="del-flds-'+did+'">'
+      +'<div class="f"><label>Nome do Delegado</label><input type="text" id="del-nome-'+did+'" placeholder="Nome completo"></div>'
+      +'<div class="f"><label>Contato / E-mail</label><input type="text" id="del-cont-'+did+'" placeholder="e-mail ou telefone"></div>'
+      +'</div></div>'
+
+      +'<div class="card" id="cdisc-'+did+'">'
+      +'<div class="ch" style="background:'+dc.cor+'12;border-color:'+dc.cor+'40">'
+      +'<div class="ch-left"><span style="font-size:16px">'+dc.ico+'</span><h2 style="color:'+dc.cor+'">'+dc.nome+'</h2></div>'
+      +'</div>'
+      +'<div class="cb">'
+      +'<div class="fg" style="margin-bottom:14px">'
+      +'<div class="f"><label>Responsável Técnico desta Disciplina</label>'
+      +'<select id="rt-sel-'+did+'" onchange="document.getElementById(\'rt-nm-'+did+'\').value=this.options[this.selectedIndex].text.split(\' (\')[0]"><option value="">— Selecione o RT —</option></select>'
+      +'<input type="hidden" id="rt-nm-'+did+'"></div>'
+      +'<div class="f"><label>Observações Gerais</label>'
+      +'<input type="text" id="obs-'+did+'" placeholder="Observações específicas desta disciplina..."></div>'
+      +'</div>'
+      + srvHtml
+      +'<div class="f" style="margin-top:14px"><label>Especificações Adicionais (texto livre)</label>'
+      +'<textarea id="txt-'+did+'" rows="3" placeholder="Especificações, materiais específicos, restrições ou condições de execução não cobertas pelos itens acima..."></textarea>'
+      +'</div></div></div>';
+
+    container.appendChild(fp);
+
+    // Popular RT select
+    if(DB.cad){
+      var rtSel = document.getElementById('rt-sel-'+did);
+      DB.cad.responsaveis.forEach(function(resp){
+        var o = document.createElement('option');
+        o.value = resp.NOME;
+        o.textContent = resp.NOME+' ('+resp.CARGO+')';
+        rtSel.appendChild(o);
+      });
+    }
+  });
+}
+
+function toggleDelegacao(did){
+  var chk = document.getElementById('del-chk-'+did);
+  var flds = document.getElementById('del-flds-'+did);
+  var card = document.getElementById('cdisc-'+did);
+  flds.classList.toggle('open', chk.checked);
+  if(card){ card.style.opacity=chk.checked?'0.4':'1'; card.style.pointerEvents=chk.checked?'none':'all'; }
+  buildWizardUI();
+}
+
+function toggleSrv(chave, did){
+  var r=document.getElementById('srw-'+chave), k=document.getElementById('schk-'+chave);
+  r.classList.toggle('sel');
+  k.textContent = r.classList.contains('sel') ? '✓' : '';
+  var list=document.getElementById('sl-'+did);
+  var cnt=document.getElementById('sc-'+did);
+  if(list&&cnt) cnt.textContent = list.querySelectorAll('.srw.sel').length;
+}
+
+function toggleDtl(chave){
+  var d=document.getElementById('sdtl-'+chave);
+  var b=document.querySelector('#srw-'+chave+' .sexp');
+  d.classList.toggle('open');
+  if(b) b.textContent = d.classList.contains('open') ? '▼ fechar' : '▶ texto';
+}
+
+function selAllDisc(did, on){
+  var list=document.getElementById('sl-'+did); if(!list) return;
+  list.querySelectorAll('.srw').forEach(function(r){
+    var k=r.querySelector('.schk');
+    if(on){ r.classList.add('sel'); if(k) k.textContent='✓'; }
+    else  { r.classList.remove('sel'); if(k) k.textContent=''; }
+  });
+  var cnt=document.getElementById('sc-'+did);
+  if(cnt) cnt.textContent = on ? list.querySelectorAll('.srw').length : 0;
+}
+
+function getDiscData(did){
+  var servicos = (DB.esp && DB.esp.por_disciplina[did]) ? DB.esp.por_disciplina[did] : [];
+  var sel = servicos.filter(function(s){
+    var r=document.getElementById('srw-'+s.CHAVE); return r && r.classList.contains('sel');
+  });
+  var delegado = document.getElementById('del-chk-'+did) ? document.getElementById('del-chk-'+did).checked : false;
+  return {
+    disciplina_id: did,
+    disciplina_nome: (DISC_CONFIG.find(function(d){ return d.id===did; })||{}).nome||did,
+    responsavel_tecnico: document.getElementById('rt-nm-'+did) ? document.getElementById('rt-nm-'+did).value : '',
+    delegado: delegado,
+    delegado_nome:    document.getElementById('del-nome-'+did) ? document.getElementById('del-nome-'+did).value : '',
+    delegado_contato: document.getElementById('del-cont-'+did) ? document.getElementById('del-cont-'+did).value : '',
+    observacoes: document.getElementById('obs-'+did) ? document.getElementById('obs-'+did).value : '',
+    texto_adicional: document.getElementById('txt-'+did) ? document.getElementById('txt-'+did).value : '',
+    servicos_selecionados: sel
+  };
+}
+
+// ─── SELECTS ─────────────────────────────────────────────────────────────────
+function popularSelects(){
+  if(!DB.cad) return;
+  var su=document.getElementById('sel-unidade'), pv=su.value;
+  su.innerHTML='<option value="">— Selecione a unidade —</option>';
+  DB.cad.unidades.forEach(function(u){
+    var o=document.createElement('option');
+    o.value=u.SIGLA; o.textContent=u.SIGLA+' — '+u.NOME_COMPLETO;
+    o.dataset.nome=u.NOME_COMPLETO;
+    o.dataset.end=(u.ENDERECO+', '+u.MUNICIPIO+' - '+u.UF).replace(/undefined/g,'');
+    o.dataset.cnpj=u.CNPJ;
+    su.appendChild(o);
+  });
+  if(pv) su.value=pv;
+
+  ['sel-elaborado','sel-verificado','sel-fiscal','sel-gestor'].forEach(function(id){
+    var s=document.getElementById(id), p=s.value;
+    s.innerHTML='<option value="">— Selecione —</option>';
+    DB.cad.responsaveis.forEach(function(r){
+      var o=document.createElement('option');
+      o.value=r.NOME; o.textContent=r.NOME+' ('+r.CARGO+')'; o.dataset.ini=r.INICIAIS;
+      s.appendChild(o);
+    });
+    if(p) s.value=p;
+  });
+
+  var sm=document.getElementById('sel-modalidade'), pm=sm.value;
+  sm.innerHTML='<option value="">— Selecione —</option>';
+  DB.cad.modalidades.forEach(function(m){
+    var o=document.createElement('option'); o.value=m.MODALIDADE; o.textContent=m.MODALIDADE; sm.appendChild(o);
+  });
+  if(pm) sm.value=pm;
+
+  var ss=document.getElementById('sel-servico'), ps=ss.value;
+  ss.innerHTML='<option value="">— Selecione o tipo de serviço —</option>';
+  DB.cad.servicos.forEach(function(s){
+    var o=document.createElement('option'); o.value=s.NOME_SERVICO; o.textContent=s.NOME_SERVICO; ss.appendChild(o);
+  });
+  if(ps) ss.value=ps;
+}
+
+function onUnidade(){
+  var s=document.getElementById('sel-unidade'), o=s.options[s.selectedIndex];
+  document.getElementById('f-UNIDADE').value=o.dataset.nome||'';
+  document.getElementById('f-ENDERECO').value=o.dataset.end||'';
+  document.getElementById('f-CNPJ').value=o.dataset.cnpj||'';
+  document.getElementById('f-SIGLA').value=o.value||'';
+  atualizaCodigo();
+}
+
+function atualizaCodigo(){
+  var sigla=document.getElementById('f-SIGLA').value||'XXX';
+  var svc=(document.getElementById('sel-servico').value||'ASSUNTO').split(' ').slice(0,2).map(function(w){ return w.toUpperCase().replace(/[^A-Z]/g,''); }).join('');
+  var seq=(document.getElementById('f-SEQ').value||'001').padStart(3,'0');
+  document.getElementById('f-CODIGO').value='SS-'+sigla+'-'+svc+'-EX-ORC-DOC-'+seq+'-R00';
+}
+
+// ─── COLETAR DADOS ────────────────────────────────────────────────────────────
+function gv(id){ var e=document.getElementById('f-'+id); return e?e.value.trim():''; }
+
+function collectData(){
+  var servico = gv('SERVICO') || document.getElementById('sel-servico').value || '';
+  return {
+    UNIDADE: gv('UNIDADE'), ENDERECO: gv('ENDERECO'), CNPJ: gv('CNPJ'),
+    SERVICO: servico, REGIME_CONTRATACAO: gv('REGIME_CONTRATACAO'),
+    CODIGO: gv('CODIGO'), DATA: gv('DATA'), REVISAO: gv('REVISAO'),
+    INDICE_REV: gv('INDICE_REV')||'Emissão inicial',
+    ELABORADO: gv('ELABORADO'), VERIFICADO: gv('VERIFICADO'), APROVADO: '',
+    FISCAL_CONTRATO: gv('FISCAL_CONTRATO'), GESTOR_CONTRATO: gv('GESTOR_CONTRATO'),
+    TELEFONE_FISCAL: gv('TELEFONE_FISCAL'),
+    PRAZO_EXECUCAO: gv('PRAZO_EXECUCAO'), PRAZO_VIGENCIA: gv('PRAZO_VIGENCIA'),
+    JUSTIFICATIVA: gv('JUSTIFICATIVA'),
+    RELACAO_SERVICOS: gv('RELACAO_SERVICOS'),
+    DESCRICAO_DEMOLICOES: gv('DESCRICAO_DEMOLICOES'),
+    DESCRICAO_CONSTRUCOES: '',
+    EQUIPE_TECNICA: gv('EQUIPE_TECNICA'),
+    disciplinas_selecionadas: discsSel.slice(),
+    disciplinas_dados: discsSel.map(function(did){ return getDiscData(did); }),
+    status: 'rascunho',
+    id: document.getElementById('editing-id').value || '',
+    _ts: Date.now()
+  };
+}
+
+// ─── REVIEW ───────────────────────────────────────────────────────────────────
+function buildReview(){
+  var d=collectData();
+  function rr(lbl,ico,val){
+    return '<div class="rev-row"><span class="rev-ico">'+ico+'</span><span class="rev-lbl">'+lbl+'</span>'
+      +'<span class="rev-val'+(val?'':' rev-empty')+'">'+(val||'(não preenchido)')+'</span></div>';
+  }
+  var html='<div class="rev-sec">Identificação</div>'
+    +rr('Unidade','🏛️',d.UNIDADE)+rr('Serviço','🔧',d.SERVICO)
+    +rr('Regime','📋',d.REGIME_CONTRATACAO)+rr('Código','🔢',d.CODIGO)
+    +rr('Elaborado','👤',d.ELABORADO)
+    +'<div class="rev-sec">Contrato</div>'
+    +rr('Fiscal','👁️',d.FISCAL_CONTRATO)+rr('Gestor','📌',d.GESTOR_CONTRATO)
+    +rr('Prazo exec.','⏱️',d.PRAZO_EXECUCAO)+rr('Prazo vig.','📅',d.PRAZO_VIGENCIA)
+    +'<div class="rev-sec">Disciplinas</div>';
+  d.disciplinas_dados.forEach(function(dd){
+    var dc=DISC_CONFIG.find(function(x){ return x.id===dd.disciplina_id; });
+    html+='<div class="rev-row"><span class="rev-ico">'+(dc?dc.ico:'🔧')+'</span>'
+      +'<span class="rev-lbl">'+dd.disciplina_nome+'</span>'
+      +'<span class="rev-val">'
+      +(dd.delegado
+        ? '<span style="color:#805ad5;font-weight:700">DELEGADO</span> → '+(dd.delegado_nome||'sem nome')
+        : 'RT: <b>'+(dd.responsavel_tecnico||'—')+'</b> · '
+          +dd.servicos_selecionados.length+' serviço(s)'
+          +(dd.texto_adicional?' · <span style="color:var(--am)">+texto adicional</span>':'')
+      )+'</span></div>';
+  });
+  document.getElementById('review-content').innerHTML=html;
+}
+
+// ─── SALVAR ───────────────────────────────────────────────────────────────────
+function salvarRascunho(){
+  var d=collectData(); d.status='rascunho';
+  var projs=LS.projs();
+  if(d.id){ var i=projs.findIndex(function(p){ return p.id===d.id; }); if(i>=0) projs[i]={...projs[i],...d}; else projs.push(d); }
+  else{ d.id='p'+Date.now(); document.getElementById('editing-id').value=d.id; projs.push(d); }
+  LS.sProjs(projs); updatePjBadge();
+  alert('Rascunho salvo ✅');
+}
+
+function novoFormulario(){
+  discsSel=[];
+  document.querySelectorAll('.f input:not([readonly]),.f textarea,.f select').forEach(function(e){
+    if(e.tagName==='SELECT') e.selectedIndex=0; else e.value='';
+  });
+  document.getElementById('editing-id').value='';
+  document.getElementById('editing-badge').style.display='none';
+  document.getElementById('fps-disciplinas').innerHTML='';
+  renderDiscSelector();
+  buildWizardUI();
+  curStep=1; updateWizUI();
+  showPage('formulario');
+}
+
+// ─── PROJETOS ─────────────────────────────────────────────────────────────────
+function renderProjetos(){
+  var projs=LS.projs();
+  var srch=(document.getElementById('pj-srch')||{value:''}).value.toLowerCase();
+  var fst=(document.getElementById('pj-fst')||{value:''}).value;
+  var filtered=projs.filter(function(p){
+    return (!srch||((p.UNIDADE||'').toLowerCase().includes(srch)||(p.SERVICO||'').toLowerCase().includes(srch)))
+        && (!fst||p.status===fst);
+  }).sort(function(a,b){ return (b._ts||0)-(a._ts||0); });
+
+  var g=document.getElementById('pj-grid');
+  if(!filtered.length){ g.innerHTML='<div class="empty">📁 Nenhum projeto salvo</div>'; return; }
+  g.innerHTML=filtered.map(function(p){
+    var discsStr=(p.disciplinas_selecionadas||[]).map(function(did){
+      var dc=DISC_CONFIG.find(function(d){ return d.id===did; }); return dc?dc.ico:'🔧';
+    }).join(' ');
+    return '<div class="pj-card">'
+      +'<div class="pj-hdr"><span class="pj-num">'+(p.CODIGO||'SEM-COD')+'</span>'
+      +'<div><div class="pj-ttl">'+(p.SERVICO||'Sem título')+'</div>'
+      +'<div class="pj-unit">'+(p.UNIDADE||'')+'</div></div>'
+      +'<span class="sbg '+(p.status==='emitido'?'s-em':'s-r')+'">'+(p.status||'rascunho')+'</span></div>'
+      +'<div class="pj-meta">'
+      +'<div class="pj-mi"><div class="pj-ml">Fiscal</div><div class="pj-mv">'+(p.FISCAL_CONTRATO||'—')+'</div></div>'
+      +'<div class="pj-mi"><div class="pj-ml">Prazo</div><div class="pj-mv">'+(p.PRAZO_EXECUCAO||'—')+'</div></div>'
+      +'<div class="pj-mi"><div class="pj-ml">Data</div><div class="pj-mv">'+(p.DATA||'—')+'</div></div>'
+      +'<div class="pj-mi"><div class="pj-ml">Disciplinas</div><div class="pj-mv">'+(discsStr||'—')+'</div></div>'
+      +'</div>'
+      +'<div class="pj-act">'
+      +'<button class="btn btn-o" onclick="reabrirProj(\''+p.id+'\')">✏️ Editar</button>'
+      +'<button class="btn btn-s" onclick="gerarDoProjeto(\''+p.id+'\')">📄 Gerar .docx</button>'
+      +'<button class="btn btn-d" onclick="deletarProj(\''+p.id+'\')">🗑️</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function updatePjBadge(){ document.getElementById('proj-count-badge').textContent=LS.projs().length; }
+function reabrirProj(id){
+  var p=LS.projs().find(function(x){ return x.id===id; }); if(!p) return;
+  discsSel=(p.disciplinas_selecionadas||[]).slice();
+  renderDiscSelector(); renderDiscFps(); buildWizardUI();
+  Object.entries(p).forEach(function(pair){
+    var k=pair[0],v=pair[1]; if(typeof v!=='string') return;
+    var el=document.getElementById('f-'+k); if(el){ el.value=v; if(el.readOnly) el._locked=true; }
+  });
+  document.getElementById('editing-id').value=p.id;
+  var b=document.getElementById('editing-badge'); b.style.display='inline'; b.textContent='Editando: '+p.CODIGO;
+  curStep=1; updateWizUI();
+  showPage('formulario');
+}
+function deletarProj(id){ if(!confirm('Remover projeto?')) return; LS.sProjs(LS.projs().filter(function(p){ return p.id!==id; })); renderProjetos(); updatePjBadge(); }
+async function gerarDoProjeto(id){ var p=LS.projs().find(function(x){ return x.id===id; }); if(p) await gerarDocumento(p); }
+function exportarProjetos(){ var blob=new Blob([JSON.stringify(LS.projs(),null,2)],{type:'application/json'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='projetos_gen.json'; a.click(); }
+function importarProjetos(inp){ var f=inp.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(e){ try{ var ps=JSON.parse(e.target.result); if(!Array.isArray(ps)) throw new Error('inválido'); LS.sProjs(ps); renderProjetos(); updatePjBadge(); alert('✅ '+ps.length+' projetos importados'); }catch(err){ alert('❌ '+err.message); } }; r.readAsText(f); }
+
+// ─── BANCO PREVIEW ────────────────────────────────────────────────────────────
+function atualizarBancoTags(){
+  var tc=document.getElementById('bt-cad');
+  var te=document.getElementById('bt-esp');
+  var tt=document.getElementById('bt-tpl');
+  if(DB.cad){ tc.className='bs-tag bs-ok'; tc.textContent='✅ Cadastros: '+DB.cad.unidades.length+' unidades'; }
+  if(DB.esp){ var tot=Object.values(DB.esp.por_disciplina).reduce(function(a,v){ return a+v.length; },0); te.className='bs-tag bs-ok'; te.textContent='✅ Especificações: '+tot+' serviços'; }
+  if(DB.tplBytes){ tt.className='bs-tag bs-ok'; tt.textContent='✅ Template carregado'; }
+}
+
+function renderBancoPreview(){
+  atualizarBancoTags();
+  if(DB.cad){
+    document.getElementById('tb-unidades').innerHTML=(DB.cad.unidades||[]).map(function(u){
+      return '<tr><td><b>'+u.SIGLA+'</b></td><td>'+u.NOME_COMPLETO+'</td><td style="font-size:10px;color:#718096">'+u.ENDERECO+', '+u.MUNICIPIO+' - '+u.UF+'</td><td style="font-family:var(--mono);font-size:10px">'+u.CNPJ+'</td></tr>';
+    }).join('');
+    document.getElementById('tb-responsaveis').innerHTML=(DB.cad.responsaveis||[]).map(function(r){
+      return '<tr><td><b>'+r.NOME+'</b></td><td style="color:var(--az3);font-family:var(--mono)">'+r.INICIAIS+'</td><td style="font-size:10px">'+r.CARGO+'</td><td style="font-size:10px;color:#718096">'+r.CREA_CAU+'</td><td style="font-size:10px">'+r.PAPEL+'</td></tr>';
+    }).join('');
+    document.getElementById('tb-servicos').innerHTML=(DB.cad.servicos||[]).map(function(s){
+      return '<tr><td>'+s.NOME_SERVICO+'</td><td style="font-size:10px;color:#718096">'+(s.DESCRICAO_RESUMIDA||'')+'</td></tr>';
+    }).join('');
+  }
+  if(DB.esp){
+    var rows=Object.values(DB.esp.por_disciplina).flat();
+    document.getElementById('tb-disciplinas').innerHTML=rows.map(function(d){
+      return '<tr><td style="font-weight:700;color:var(--az);font-size:10px">'+(d.CHAVE||'').split('|')[0]+'</td><td>'+d.NOME_SERVICO+'</td><td style="font-family:var(--mono);font-size:9px;color:#718096">'+d.CHAVE+'</td><td style="font-size:9px;color:#718096">'+(d.NORMAS_ABNT||'')+'</td></tr>';
+    }).join('');
+  }
+}
+
+// ─── GERADOR .docx ────────────────────────────────────────────────────────────
+function esc(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function expandMultiPara(xml, marker, texto){
+  if(!texto || !xml.includes(marker)) return xml;
+  var idx = xml.indexOf(marker);
+  if(idx === -1) return xml;
+  var pStart = xml.lastIndexOf('<w:p ', idx);
+  var pEnd   = xml.indexOf('</w:p>', idx) + 6;
+  if(pStart === -1 || pEnd <= 5) return xml.split(marker).join(esc(texto));
+  var origPara = xml.slice(pStart, pEnd);
+  // Extrair pPr
+  var pPrS=origPara.indexOf('<w:pPr>'), pPrE=origPara.indexOf('</w:pPr>')+8;
+  var pPr=(pPrS>-1&&pPrE>7)?origPara.slice(pPrS,pPrE):'<w:pPr><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>';
+  // Extrair rPr
+  var rPrS=origPara.indexOf('<w:rPr>'), rPrE=origPara.indexOf('</w:rPr>')+8;
+  var rPr=(rPrS>-1&&rPrE>7)?origPara.slice(rPrS,rPrE):'<w:rPr><w:szCs w:val="20"/></w:rPr>';
+  // Um <w:p> por parágrafo
+  var linhas=texto.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length>0; });
+  if(linhas.length===0) linhas=[texto.trim()];
+  var xmlParas=linhas.map(function(linha){
+    return '<w:p>'+pPr+'<w:r>'+rPr+'<w:t xml:space="preserve">'+esc(linha)+'</w:t></w:r></w:p>';
+  }).join('');
+  return xml.slice(0,pStart)+xmlParas+xml.slice(pEnd);
+}
+
+function buildNormaXml(n){
+  return '<w:p><w:pPr><w:pStyle w:val="PargrafodaLista"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="41"/></w:numPr><w:spacing w:after="0"/></w:pPr><w:r><w:t>'+esc(n)+'</w:t></w:r></w:p>';
+}
+
+async function salvarEGerar(){
+  var d=collectData(); d.status='emitido'; d._ts=Date.now();
+  var projs=LS.projs();
+  if(d.id){ var i=projs.findIndex(function(p){ return p.id===d.id; }); if(i>=0) projs[i]={...projs[i],...d}; else projs.push(d); }
+  else{ d.id='p'+Date.now(); document.getElementById('editing-id').value=d.id; projs.push(d); }
+  LS.sProjs(projs); updatePjBadge();
+  await gerarDocumento(d);
+}
+
+async function gerarDocumento(data){
+  if(!DB.tplBytes){ alert('Template não carregado. Vá em Banco de Dados e selecione o TEMPLATE.docx.'); return; }
+  var btn=document.querySelector('.btn-s.btn-lg');
+  var st=document.getElementById('status');
+  if(btn) btn.disabled=true;
+  st.className='status loading'; st.textContent='⏳ Gerando documento...';
+  try{
+    var discsData=data.disciplinas_dados||[];
+    var servExecXml='';
+    var todasNormas=[];
+
+    discsData.forEach(function(dd){
+      if(dd.delegado){
+        servExecXml+='<w:p><w:pPr><w:pStyle w:val="Ttulo3"/><w:spacing w:after="120"/></w:pPr><w:r><w:t>'+esc(dd.disciplina_nome)+'</w:t></w:r></w:p>';
+        servExecXml+='<w:p><w:pPr><w:rPr><w:i/><w:color w:val="9B2C2C"/><w:szCs w:val="20"/></w:rPr></w:pPr><w:r><w:rPr><w:i/><w:color w:val="9B2C2C"/><w:szCs w:val="20"/></w:rPr><w:t>DISCIPLINA DELEGADA — a ser preenchida por: '+esc(dd.delegado_nome||'responsável técnico')+(dd.delegado_contato?' ('+esc(dd.delegado_contato)+')'):'')+'</w:t></w:r></w:p>';
+        return;
+      }
+      var srvSel=dd.servicos_selecionados||[];
+      if(!srvSel.length && !dd.texto_adicional) return;
+
+      // Cabeçalho da disciplina
+      servExecXml+='<w:p><w:pPr><w:pStyle w:val="Ttulo3"/><w:spacing w:after="80"/></w:pPr><w:r><w:t>'+esc(dd.disciplina_nome)+'</w:t></w:r></w:p>';
+
+      // Responsável Técnico
+      if(dd.responsavel_tecnico){
+        servExecXml+='<w:p><w:pPr><w:spacing w:before="0" w:after="80"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+          +'<w:r><w:rPr><w:b/><w:bCs/><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">Responsável Técnico: </w:t></w:r>'
+          +'<w:r><w:rPr><w:szCs w:val="20"/></w:rPr><w:t>'+esc(dd.responsavel_tecnico)+'</w:t></w:r></w:p>';
+      }
+
+      // Normas desta disciplina
+      var normasDisc=[];
+      srvSel.forEach(function(s){
+        (s.NORMAS_ABNT||'').split(';').map(function(n){ return n.trim(); }).filter(Boolean).forEach(function(n){
+          if(normasDisc.indexOf(n)===-1) normasDisc.push(n);
+          if(todasNormas.indexOf(n)===-1) todasNormas.push(n);
+        });
+      });
+
+      // Serviços selecionados
+      srvSel.forEach(function(s){
+        var texto=s.TEXTO_TECNICO||'';
+        // Título do serviço
+        servExecXml+='<w:p><w:pPr><w:spacing w:before="120" w:after="60"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+          +'<w:r><w:rPr><w:b/><w:bCs/><w:szCs w:val="20"/></w:rPr><w:t>'+esc(s.NOME_SERVICO)+'</w:t></w:r></w:p>';
+        // Normas do serviço
+        (s.NORMAS_ABNT||'').split(';').map(function(n){ return n.trim(); }).filter(Boolean).forEach(function(n){
+          servExecXml+=buildNormaXml(n);
+        });
+        // Texto descritivo
+        if(texto){
+          texto.split('\n').filter(function(l){ return l.trim(); }).forEach(function(linha){
+            servExecXml+='<w:p><w:pPr><w:spacing w:after="120"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+              +'<w:r><w:rPr><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">'+esc(linha.trim())+'</w:t></w:r></w:p>';
+          });
+        }
+      });
+
+      // Texto adicional
+      if(dd.texto_adicional){
+        servExecXml+='<w:p><w:pPr><w:spacing w:before="100" w:after="60"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+          +'<w:r><w:rPr><w:b/><w:bCs/><w:szCs w:val="20"/></w:rPr><w:t>Observações Técnicas Adicionais:</w:t></w:r></w:p>';
+        dd.texto_adicional.split('\n').filter(function(l){ return l.trim(); }).forEach(function(linha){
+          servExecXml+='<w:p><w:pPr><w:spacing w:after="120"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+            +'<w:r><w:rPr><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">'+esc(linha.trim())+'</w:t></w:r></w:p>';
+        });
+      }
+    });
+
+    var BOLD_MARKERS=new Set(['UNIDADE','ENDERECO','CNPJ','SERVICO','REGIME_CONTRATACAO','DATA','REVISAO','INDICE_REV','ELABORADO','VERIFICADO','APROVADO','GESTOR_CONTRATO','FISCAL_CONTRATO','TELEFONE_FISCAL','PRAZO_EXECUCAO','PRAZO_VIGENCIA']);
+    var MULTI_MARKERS=new Set(['JUSTIFICATIVA','RELACAO_SERVICOS','DESCRICAO_DEMOLICOES','DESCRICAO_CONSTRUCOES','EQUIPE_TECNICA']);
+
+    var zip=await JSZip.loadAsync(DB.tplBytes);
+    var xmlFiles=Object.keys(zip.files).filter(function(n){ return n.startsWith('word/')&&n.endsWith('.xml'); });
+
+    for(var fi=0; fi<xmlFiles.length; fi++){
+      var fn=xmlFiles[fi];
+      var c=await zip.file(fn).async('string');
+
+      // 1. Campos multi-parágrafo
+      Object.entries(data).forEach(function(pair){
+        var k=pair[0],v=pair[1];
+        if(typeof v==='string' && MULTI_MARKERS.has(k)) c=expandMultiPara(c,'{{'+k+'}}',v);
+      });
+
+      // 2. Campos em negrito (simples)
+      Object.entries(data).forEach(function(pair){
+        var k=pair[0],v=pair[1];
+        if(typeof v!=='string'||!v) return;
+        var marker='{{'+k+'}}';
+        if(!c.includes(marker)) return;
+        if(BOLD_MARKERS.has(k)){
+          // substituição simples preservando negrito existente
+          c=c.split(marker).join(esc(v));
+        } else {
+          c=c.split(marker).join(esc(v));
+        }
+      });
+
+      // 3. Normas
+      if(c.includes('{{NORMAS_APLICAVEIS}}')){
+        var nxml=todasNormas.length ? todasNormas.map(buildNormaXml).join('') : '<w:p><w:r><w:t>(Normas a definir)</w:t></w:r></w:p>';
+        var nm='{{NORMAS_APLICAVEIS}}', nps=c.lastIndexOf('<w:p ',c.indexOf(nm)), npe=c.indexOf('</w:p>',c.indexOf(nm))+6;
+        if(nps>-1&&npe>5) c=c.slice(0,nps)+nxml+c.slice(npe); else c=c.split(nm).join(todasNormas.join('; '));
+      }
+
+      // 4. Serviços a executar
+      if(c.includes('{{SERVICOS_A_EXECUTAR}}')){
+        var sx=servExecXml||'<w:p><w:r><w:t>(Sem disciplinas técnicas selecionadas)</w:t></w:r></w:p>';
+        var sm='{{SERVICOS_A_EXECUTAR}}', sps=c.lastIndexOf('<w:p ',c.indexOf(sm)), spe=c.indexOf('</w:p>',c.indexOf(sm))+6;
+        if(sps>-1&&spe>5) c=c.slice(0,sps)+sx+c.slice(spe); else c=c.split(sm).join(sx);
+      }
+
+      // 5. Limpar marcadores restantes
+      var leftover = c.match(/\{\{[A-Z_0-9]+\}\}/g);
+      if(leftover) leftover.forEach(function(m){ c=c.split(m).join(''); });
+
+      zip.file(fn, c);
+    }
+
+    var cod=(data.CODIGO||'RT').replace(/[^a-zA-Z0-9_-]/g,'_');
+    var fname=cod+'.docx';
+    var blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; a.click(); URL.revokeObjectURL(a.href);
+    st.className='status success';
+    st.textContent='✅ Gerado: '+fname+' · '+discsData.filter(function(d){ return !d.delegado; }).length+' disciplina(s)';
+  }catch(err){
+    console.error(err); st.className='status error'; st.textContent='❌ Erro: '+err.message;
+  }
+  if(btn) btn.disabled=false;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderDiscSelector();
+buildWizardUI();
+setAutoDate();
+updatePjBadge();
+</script>
+</body>
+</html>
