@@ -1,3 +1,4 @@
+<!-- Arquivo HTML modificado com carregamento automático dos arquivos -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -26,47 +27,27 @@
 body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh;font-size:13px}
 
 /* ── TOPBAR ─────────────────────────────────────────────────────── */
-.topbar{
-  background:linear-gradient(135deg,var(--az) 0%,var(--az2) 100%);
-  color:#fff;padding:0 24px;display:flex;align-items:center;height:54px;
-  box-shadow:0 2px 12px rgba(26,54,93,.35);position:sticky;top:0;z-index:200;gap:0
-}
+.topbar{background:linear-gradient(135deg,var(--az) 0%,var(--az2) 100%);color:#fff;padding:0 24px;display:flex;align-items:center;height:54px;box-shadow:0 2px 12px rgba(2,54,93,.35);position:sticky;top:0;z-index:200;gap:0}
 .logo{font-size:15px;font-weight:700;letter-spacing:.5px;margin-right:20px;white-space:nowrap;display:flex;align-items:center;gap:8px}
 .logo-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:600;letter-spacing:.8px}
 .tabs{display:flex;height:100%;flex:1}
 .tab{padding:0 16px;height:100%;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;transition:all .15s;opacity:.55;white-space:nowrap}
 .tab:hover{opacity:.85;background:rgba(255,255,255,.06)}
 .tab.active{opacity:1;border-bottom-color:rgba(255,255,255,.7)}
-.tab-badge{background:rgba(255,255,255,.15);border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700}
+.tab-badge{background:rgba(255,255,255,.15);border-radius:10px;padding:1px 5px;font-size:10px;font-weight:700}
 .tab-adm{background:#e53e3e;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:800;letter-spacing:.3px}
 
 /* ── SETUP OVERLAY ───────────────────────────────────────────────── */
-.setup-overlay{
-  position:fixed;inset:0;background:linear-gradient(135deg,#1a365d 0%,#2c5282 60%,#2b6cb0 100%);
-  z-index:500;display:flex;align-items:center;justify-content:center;
-  flex-direction:column;gap:0;
-}
+.setup-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1a365d 0%,#2c5282 60%,#2b6cb0 100%);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0}
 .setup-overlay.hidden{display:none}
-.setup-box{
-  background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);
-  width:540px;max-width:95vw;overflow:hidden;
-}
-.setup-head{
-  background:linear-gradient(135deg,#1a365d,#2c5282);
-  padding:28px 32px;color:#fff;
-}
+.setup-box{background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);width:540px;max-width:95vw;overflow:hidden}
+.setup-head{background:linear-gradient(135deg,#1a365d,#2c5282);padding:28px 32px;color:#fff}
 .setup-head h2{font-size:18px;font-weight:700;margin-bottom:6px}
 .setup-head p{font-size:12px;opacity:.75;line-height:1.5}
 .setup-body{padding:28px 32px;display:flex;flex-direction:column;gap:16px}
-.setup-item{
-  border:1.5px solid var(--cib);border-radius:10px;overflow:hidden;
-  transition:border-color .15s;
-}
+.setup-item{border:1.5px solid var(--cib);border-radius:10px;overflow:hidden;transition:border-color .15s}
 .setup-item.ok{border-color:var(--vdb)}
-.setup-item-head{
-  display:flex;align-items:center;gap:10px;padding:12px 16px;
-  background:var(--cic);cursor:pointer;transition:background .15s
-}
+.setup-item-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--cic);cursor:pointer;transition:background .15s}
 .setup-item-head:hover{background:#f0f4f8}
 .setup-item.ok .setup-item-head{background:var(--vdc)}
 .sih-ico{font-size:18px;flex-shrink:0}
@@ -74,26 +55,20 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .sih-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ci)}
 .sih-status{font-size:11px;color:#718096;margin-top:1px}
 .setup-item.ok .sih-status{color:var(--vd);font-weight:600}
-.sih-btn{
-  font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;border:none;cursor:pointer;
-  background:var(--az3);color:#fff;transition:all .12s;white-space:nowrap
-}
+.sih-btn{font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;border:none;cursor:pointer;background:var(--az3);color:#fff;transition:all .12s;white-space:nowrap}
 .sih-btn:hover{background:#2b6cb0}
 .setup-item.ok .sih-btn{background:var(--cib);color:var(--ci)}
-.setup-item-body{
-  padding:10px 16px 12px;border-top:1px solid var(--cib);
-  background:#fff;display:none
-}
+.setup-item-body{padding:10px 16px 12px;border-top:1px solid var(--cib);background:#fff;display:none}
 .setup-item.open .setup-item-body{display:block}
 .setup-note{font-size:10px;color:#718096;margin-top:6px;line-height:1.4}
 .setup-footer{padding:20px 32px;border-top:1px solid var(--cib);display:flex;align-items:center;justify-content:space-between;gap:12px}
 .setup-footer p{font-size:11px;color:#718096}
 
-/* ── PAGES ───────────────────────────────────────────────────────── */
+/* ── PAGES ────────────────────────────────────────────────────────── */
 .page{display:none;max-width:980px;margin:20px auto;padding:0 14px 80px}
 .page.active{display:block}
 
-/* ── CARDS ───────────────────────────────────────────────────────── */
+/* ── CARDS ────────────────────────────────────────────────────────── */
 .card{background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
 .ch{background:var(--azc);border-bottom:2px solid var(--azb);padding:10px 18px;display:flex;align-items:center;gap:8px;justify-content:space-between}
 .ch h2{font-size:11px;font-weight:700;color:var(--az);text-transform:uppercase;letter-spacing:.5px}
@@ -101,7 +76,7 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .ch-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--az);color:#fff;letter-spacing:.3px}
 .cb{padding:18px}
 
-/* ── FORM ────────────────────────────────────────────────────────── */
+/* ── FORM ─────────────────────────────────────────────────────────── */
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fg.g3{grid-template-columns:1fr 1fr 1fr}
 .fg.g1{grid-template-columns:1fr}
@@ -110,15 +85,8 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .f label{font-size:10px;font-weight:700;color:var(--ci);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:5px}
 .req{color:var(--vm);font-size:13px}
 .auto-tag{background:var(--vdc);color:var(--vd);font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700;border:1px solid var(--vdb)}
-.f input,.f select,.f textarea{
-  border:1.5px solid var(--cib);border-radius:7px;padding:8px 11px;
-  font-size:13px;font-family:var(--font);background:#fafafa;
-  transition:border-color .15s,box-shadow .15s;width:100%;color:var(--tx)
-}
-.f input:focus,.f select:focus,.f textarea:focus{
-  outline:none;border-color:var(--az3);
-  box-shadow:0 0 0 3px rgba(49,130,206,.1);background:#fff
-}
+.f input,.f select,.f textarea{border:1.5px solid var(--cib);border-radius:7px;padding:8px 11px;font-size:13px;font-family:var(--font);background:#fafafa;transition:border-color .15s,box-shadow .15s;width:100%;color:var(--tx)}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--az3);box-shadow:0 0 0 3px rgba(49,130,206,.1);background:#fff}
 .f input[readonly]{background:var(--vdc);color:var(--vd);border-color:var(--vdb);cursor:default;font-weight:600}
 .f textarea{resize:vertical;min-height:75px;line-height:1.6}
 .f .hint{font-size:10px;color:#718096;margin-top:2px;line-height:1.3}
@@ -126,18 +94,9 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .sdiv span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#a0aec0;white-space:nowrap}
 .sdiv::before,.sdiv::after{content:'';flex:1;height:1px;background:var(--cib)}
 
-/* ── WIZARD ──────────────────────────────────────────────────────── */
-.wsteps{
-  display:flex;background:var(--wh);border-radius:var(--r);
-  box-shadow:var(--sh);overflow-x:auto;margin-bottom:14px;
-  border:1px solid var(--cib)
-}
-.wstep{
-  flex:0 0 auto;padding:10px 12px;text-align:center;cursor:pointer;
-  border-bottom:3px solid transparent;transition:all .15s;
-  font-size:10px;font-weight:700;color:#a0aec0;
-  border-right:1px solid var(--cib);user-select:none;min-width:88px
-}
+/* ── WIZARD ───────────────────────────────────────────────────────── */
+.wsteps{display:flex;background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);overflow-x:auto;margin-bottom:14px;border:1px solid var(--cib)}
+.wstep{flex:0 0 auto;padding:10px 12px;text-align:center;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;font-size:10px;font-weight:700;color:#a0aec0;border-right:1px solid var(--cib);user-select:none;min-width:88px}
 .wstep:last-child{border-right:none}
 .wstep:hover{background:var(--azc);color:var(--az2)}
 .wstep.active{background:var(--azc);border-bottom-color:var(--az3);color:var(--az)}
@@ -146,13 +105,8 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .wstep-ico{font-size:16px;display:block;margin-bottom:3px}
 .fp{display:none}.fp.active{display:block}
 
-/* ── BUTTONS ─────────────────────────────────────────────────────── */
-.btn{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:8px 15px;border:none;border-radius:7px;
-  font-size:12px;font-weight:600;cursor:pointer;
-  transition:all .12s;font-family:var(--font);white-space:nowrap
-}
+/* ── BUTTONS ──────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 15px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;font-family:var(--font);white-space:nowrap}
 .btn-p{background:var(--az3);color:#fff;box-shadow:0 2px 6px rgba(49,130,206,.25)}
 .btn-p:hover{background:#2b6cb0;transform:translateY(-1px)}
 .btn-s{background:#38a169;color:#fff;box-shadow:0 2px 6px rgba(56,161,105,.2)}
@@ -164,56 +118,37 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .btn-full{width:100%;justify-content:center}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
 
-/* ── STATUS ──────────────────────────────────────────────────────── */
+/* ── STATUS ───────────────────────────────────────────────────────── */
 .status{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;display:none}
 .status.loading{background:var(--azc);color:var(--az2);border:1px solid var(--azb);display:block}
 .status.success{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb);display:block}
 .status.error{background:var(--vmc);color:var(--vm);border:1px solid var(--vmb);display:block}
 
-/* ── RESP BANNER ─────────────────────────────────────────────────── */
+/* ── RESP BANNER ──────────────────────────────────────────────────── */
 .resp-banner{border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;border:1.5px solid}
 .rbi{font-size:20px;flex-shrink:0;margin-top:1px}
 .resp-banner strong{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
 .resp-banner p{font-size:11px;opacity:.75;line-height:1.4}
 
-/* ── SERVIÇOS CHECKLIST ──────────────────────────────────────────── */
+/* ── SERVIÇOS CHECKLIST ────────────────────────────────────────────── */
 .srv-toolbar{display:flex;gap:8px;margin-bottom:8px;align-items:center}
 .srv-toolbar a{font-size:10px;font-weight:600;color:var(--az3);cursor:pointer;text-decoration:none}
 .srv-toolbar a:hover{text-decoration:underline}
 .srv-count{margin-left:auto;font-size:10px;color:#718096}
 .srv-list{display:flex;flex-direction:column;gap:3px}
-.srw{
-  display:flex;align-items:flex-start;gap:8px;padding:8px 10px;
-  border-radius:7px;cursor:pointer;border:1.5px solid transparent;
-  transition:all .12s;background:var(--cic)
-}
+.srw{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;border:1.5px solid transparent;transition:all .12s;background:var(--cic)}
 .srw:hover{background:var(--azc);border-color:var(--azb)}
 .srw.sel{background:#ebf8ff;border-color:var(--az3)}
-.schk{
-  width:16px;height:16px;border:2px solid var(--cib);border-radius:4px;
-  flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  margin-top:2px;transition:all .12s;font-size:10px;font-weight:700
-}
+.schk{width:16px;height:16px;border:2px solid var(--cib);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .12s;font-size:10px;font-weight:700}
 .srw.sel .schk{background:var(--az3);border-color:var(--az3);color:#fff}
 .snm{font-size:12px;font-weight:600;flex:1;line-height:1.3;color:var(--tx)}
 .snormas{font-size:9px;color:#718096;margin-top:2px;font-family:var(--mono)}
-.sexp{
-  font-size:9px;color:var(--az3);cursor:pointer;padding:2px 7px;
-  border-radius:4px;border:1px solid var(--azb);background:var(--wh);
-  flex-shrink:0;margin-top:1px;font-weight:600;white-space:nowrap
-}
-.sdtl{
-  display:none;padding:9px 11px 10px 34px;
-  background:#f0f7ff;border-top:1px solid var(--azb);
-  font-size:11px;color:var(--ci);line-height:1.7;border-radius:0 0 6px 6px
-}
+.sexp{font-size:9px;color:var(--az3);cursor:pointer;padding:2px 7px;border-radius:4px;border:1px solid var(--azb);background:var(--wh);flex-shrink:0;margin-top:1px;font-weight:600;white-space:nowrap}
+.sdtl{display:none;padding:9px 11px 10px 34px;background:#f0f7ff;border-top:1px solid var(--azb);font-size:11px;color:var(--ci);line-height:1.7;border-radius:0 0 6px 6px}
 .sdtl.open{display:block}
 
-/* ── DELEGAÇÃO ───────────────────────────────────────────────────── */
-.del-box{
-  background:#faf5ff;border:1.5px solid #d6bcfa;
-  border-radius:8px;padding:12px 14px;margin-bottom:14px
-}
+/* ── DELEGAÇÃO ────────────────────────────────────────────────────── */
+.del-box{background:#faf5ff;border:1.5px solid #d6bcfa;border-radius:8px;padding:12px 14px;margin-bottom:14px}
 .del-box h3{font-size:10px;font-weight:700;color:#553c9a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
 .del-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px}
 .del-toggle input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#805ad5}
@@ -221,31 +156,21 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .del-flds{display:none;margin-top:10px}
 .del-flds.open{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* ── DISC SELECTOR ───────────────────────────────────────────────── */
+/* ── DISC SELECTOR ────────────────────────────────────────────────── */
 .disc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:8px;margin-bottom:4px}
-.disc-item{
-  display:flex;align-items:center;gap:9px;padding:10px 12px;
-  background:var(--wh);border:2px solid var(--cib);border-radius:8px;
-  cursor:pointer;transition:all .15s;user-select:none
-}
+.disc-item{display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--wh);border:2px solid var(--cib);border-radius:8px;cursor:pointer;transition:all .15s;user-select:none}
 .disc-item:hover{border-color:var(--azb);background:var(--azc)}
 .disc-item.on{border-width:2px}
 .disc-item input[type=checkbox]{width:15px;height:15px;cursor:pointer;flex-shrink:0}
 .disc-item-ico{font-size:17px;flex-shrink:0}
 .disc-item-nm{font-size:11px;font-weight:600;flex:1;line-height:1.3;color:var(--tx)}
 
-/* ── PROJETOS ────────────────────────────────────────────────────── */
+/* ── PROJETOS ─────────────────────────────────────────────────────── */
 .pj-grid{display:flex;flex-direction:column;gap:8px}
-.pj-card{
-  background:var(--wh);border-radius:var(--r);
-  border:1.5px solid var(--cib);overflow:hidden;transition:all .12s
-}
+.pj-card{background:var(--wh);border-radius:var(--r);border:1.5px solid var(--cib);overflow:hidden;transition:all .12s}
 .pj-card:hover{box-shadow:var(--sh2);border-color:var(--azb)}
 .pj-hdr{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;cursor:pointer}
-.pj-num{
-  font-size:9px;font-weight:700;color:var(--az3);background:var(--azc);
-  padding:2px 7px;border-radius:4px;font-family:var(--mono);white-space:nowrap;margin-top:2px
-}
+.pj-num{font-size:9px;font-weight:700;color:var(--az3);background:var(--azc);padding:2px 7px;border-radius:4px;font-family:var(--mono);white-space:nowrap;margin-top:2px}
 .pj-ttl{font-weight:700;font-size:13px;flex:1;line-height:1.25}
 .pj-unit{font-size:10px;color:#718096;margin-top:2px}
 .pj-meta{display:flex;gap:12px;padding:2px 14px 9px;flex-wrap:wrap}
@@ -254,19 +179,12 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .sbg{font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;text-transform:uppercase}
 .s-r{background:var(--cic);color:#718096;border:1px solid var(--cib)}
 .s-em{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb)}
-.pj-act{
-  display:flex;gap:5px;padding:7px 14px;
-  border-top:1px solid var(--cib);background:#fafbff;justify-content:flex-end
-}
+.pj-act{display:flex;gap:5px;padding:7px 14px;border-top:1px solid var(--cib);background:#fafbff;justify-content:flex-end}
 
-/* ── WIZARD NAV ──────────────────────────────────────────────────── */
-.wnav{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:14px 18px;background:var(--wh);border-radius:var(--r);
-  box-shadow:var(--sh);margin-top:14px;gap:10px;border:1px solid var(--cib)
-}
+/* ── WIZARD NAV ───────────────────────────────────────────────────── */
+.wnav{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);margin-top:14px;gap:10px;border:1px solid var(--cib)}
 
-/* ── REVIEW ──────────────────────────────────────────────────────── */
+/* ── REVIEW ────────────────────────────────────────────────────────── */
 .rev-row{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--cib);align-items:flex-start}
 .rev-ico{font-size:13px;flex-shrink:0;margin-top:1px}
 .rev-lbl{font-size:10px;font-weight:700;color:var(--ci);min-width:175px;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px}
@@ -274,7 +192,7 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .rev-empty{font-style:italic;color:#a0aec0}
 .rev-sec{font-size:10px;font-weight:700;color:var(--az);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
 
-/* ── BANCO VISUALIZAR ────────────────────────────────────────────── */
+/* ── BANCO VISUALIZAR ──────────────────────────────────────────────── */
 .atab-bar{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
 .atab{padding:6px 13px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--cib);color:var(--ci);background:var(--wh);transition:all .12s}
 .atab.active{background:var(--azc);border-color:var(--az3);color:var(--az2)}
@@ -283,11 +201,7 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .stbl th{background:var(--cic);padding:7px 11px;text-align:left;font-weight:700;font-size:9px;color:#718096;text-transform:uppercase;border-bottom:2px solid var(--cib);letter-spacing:.4px}
 .stbl td{padding:7px 11px;border-bottom:1px solid var(--cib);vertical-align:top}
 .stbl tr:hover td{background:#fafbfc}
-.tip{
-  background:var(--amc);border:1px solid var(--amb);border-radius:8px;
-  padding:10px 14px;font-size:11px;color:var(--am);
-  display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;line-height:1.5
-}
+.tip{background:var(--amc);border:1px solid var(--amb);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--am);display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;line-height:1.5}
 .tbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
 .fsrch{flex:1;min-width:160px;border:1.5px solid var(--cib);border-radius:7px;padding:7px 10px;font-size:11px;font-family:var(--font)}
 .fsel{border:1.5px solid var(--cib);border-radius:7px;padding:7px 9px;font-size:11px;background:var(--wh);cursor:pointer;font-family:var(--font)}
@@ -296,7 +210,7 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .bs-ok{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb)}
 .bs-no{background:var(--amc);color:var(--am);border:1px solid var(--amb)}
 
-/* ── RESPONSIVE ──────────────────────────────────────────────────── */
+/* ── RESPONSIVE ───────────────────────────────────────────────────── */
 @media(max-width:640px){
   .fg,.fg.g3{grid-template-columns:1fr}
   .f.s2,.f.s3{grid-column:span 1}
@@ -314,20 +228,18 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
   <div class="setup-box">
     <div class="setup-head">
       <h2>⚙️ Configuração Inicial</h2>
-      <p>O sistema precisa localizar os arquivos da pasta <strong>banco/</strong> antes de iniciar.<br>
-      Selecione cada arquivo uma vez — o sistema vai lembrar.</p>
+      <p>O sistema está carregando os arquivos automaticamente da pasta <strong>banco/</strong>.<br>Se houver problemas, você pode selecionar manualmente abaixo.</p>
     </div>
     <div class="setup-body">
-
       <div class="setup-item" id="si-cad">
         <div class="setup-item-head" onclick="toggleSetupItem('cad')">
           <span class="sih-ico">📋</span>
           <div class="sih-info">
             <div class="sih-label">BANCO_CADASTROS.xlsx</div>
-            <div class="sih-status" id="ss-cad">Unidades, responsáveis, modalidades — não carregado</div>
+            <div class="sih-status" id="ss-cad">Carregando automaticamente...</div>
           </div>
           <label class="sih-btn" style="cursor:pointer" onclick="event.stopPropagation()">
-            Selecionar arquivo
+            Substituir arquivo
             <input type="file" accept=".xlsx" id="fi-cad" style="display:none" onchange="carregarCadastros()">
           </label>
         </div>
@@ -338,10 +250,10 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
           <span class="sih-ico">📐</span>
           <div class="sih-info">
             <div class="sih-label">BANCO_ESPECIFICACOES.xlsx</div>
-            <div class="sih-status" id="ss-esp">Disciplinas técnicas e textos construtivos — não carregado</div>
+            <div class="sih-status" id="ss-esp">Carregando automaticamente...</div>
           </div>
           <label class="sih-btn" style="cursor:pointer" onclick="event.stopPropagation()">
-            Selecionar arquivo
+            Substituir arquivo
             <input type="file" accept=".xlsx" id="fi-esp" style="display:none" onchange="carregarEspecificacoes()">
           </label>
         </div>
@@ -352,10 +264,10 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
           <span class="sih-ico">📄</span>
           <div class="sih-info">
             <div class="sih-label">TEMPLATE.docx</div>
-            <div class="sih-status" id="ss-tpl">Template Word com marcadores — não carregado</div>
+            <div class="sih-status" id="ss-tpl">Carregando automaticamente...</div>
           </div>
           <label class="sih-btn" style="cursor:pointer" onclick="event.stopPropagation()">
-            Selecionar arquivo
+            Substituir arquivo
             <input type="file" accept=".docx" id="fi-tpl" style="display:none" onchange="carregarTemplate()">
           </label>
         </div>
@@ -363,7 +275,7 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 
     </div>
     <div class="setup-footer">
-      <p id="setup-footer-msg">Selecione os 3 arquivos para iniciar</p>
+      <p id="setup-footer-msg">Carregando arquivos automaticamente...</p>
       <button class="btn btn-p" id="btn-entrar" onclick="entrarNoSistema()" disabled>
         Entrar no sistema →
       </button>
@@ -603,7 +515,7 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
     </div>
     <div class="cb">
       <div class="tip">
-        📌 <span>Os arquivos ficam na pasta <strong>banco/</strong> junto com o sistema. Para atualizar dados, edite os arquivos Excel ou o TEMPLATE.docx diretamente e clique em <strong>"Recarregar arquivos"</strong> acima.</span>
+        📌 Os arquivos ficam na pasta <strong>banco/</strong> junto com o sistema. Para atualizar dados, edite os arquivos Excel ou o TEMPLATE.docx diretamente e clique em <strong>"Recarregar arquivos"</strong> acima.
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
         <span class="bs-tag" id="bt-cad">⚠️ BANCO_CADASTROS — não carregado</span>
@@ -639,16 +551,23 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 <input type="hidden" id="editing-id">
 
 <script>
-// ─── CONFIG DISCIPLINAS ───────────────────────────────────────────────────────
+// ─── CONFIG DISCIPLINAS ────────────────────────────────────────────────────────
 var DISC_CONFIG = [
-  {id:"civil",          nome:"Obras Civis",                         ico:"🏗️", cor:"#2D6A4F"},
-  {id:"eletrica",       nome:"Instalações Elétricas",               ico:"⚡",  cor:"#7B3F00"},
-  {id:"hidrossanitaria",nome:"Instalações Hidrossanitárias",        ico:"🚿",  cor:"#1A535C"},
-  {id:"ppci",           nome:"PPCI — Prev. e Combate a Incêndio",   ico:"🔥",  cor:"#9B2C2C"},
-  {id:"climatizacao",   nome:"Climatização, Mecânica e Elevadores", ico:"❄️",  cor:"#1A365D"},
-  {id:"dados",          nome:"Dados, Voz e CFTV",                   ico:"🔌",  cor:"#553C9A"},
-  {id:"paisagismo",     nome:"Paisagismo e Obras Externas",          ico:"🌿",  cor:"#276749"},
+  {id:"civil", nome:"Obras Civis", ico:"🏗️", cor:"#2D6A4F"},
+  {id:"eletrica", nome:"Instalações Elétricas", ico:"⚡", cor:"#7B3F00"},
+  {id:"hidrossanitaria", nome:"Instalações Hidrossanitárias", ico:"🚿", cor:"#1A535C"},
+  {id:"ppci", nome:"PPCI — Prev. e Combate a Incêndio", ico:"🔥", cor:"#9B2C2C"},
+  {id:"climatizacao", nome:"Climatização, Mecânica e Elevadores", ico:"❄️", cor:"#1A365D"},
+  {id:"dados", nome:"Dados, Voz e CFTV", ico:"🔌", cor:"#553C9A"},
+  {id:"paisagismo", nome:"Paisagismo e Obras Externas", ico:"🌿", cor:"#276749"},
 ];
+
+// ─── ARQUIVOS ─────────────────────────────────────────────────────────────────
+var ARQUIVOS = {
+  cad: 'cadastros.xlsx',
+  esp: 'especificacoes.xlsx',
+  tpl: 'template.docx'
+};
 
 // ─── ESTADO ───────────────────────────────────────────────────────────────────
 var curStep = 1;
@@ -662,25 +581,51 @@ var LS = {
   sProjs: function(v){ localStorage.setItem('gen_projs', JSON.stringify(v)); }
 };
 
-// ─── SETUP ───────────────────────────────────────────────────────────────────
+// ─── SETUP ────────────────────────────────────────────────────────────────────
 function toggleSetupItem(id){
   var el = document.getElementById('si-'+id);
   el.classList.toggle('open');
 }
 
-function carregarCadastros(){
-  var f = document.getElementById('fi-cad').files[0]; if(!f) return;
-  var r = new FileReader();
-  r.onload = function(e){
+async function autoLoadArquivos(){
+  var baseUrl = 'https://raw.githubusercontent.com/emaildaangela-create/sistema-gen-roteiros/main/';
+  var promises = [];
+
+  function loadArquivo(tipo, nome){
+    return fetch(baseUrl + nome)
+      .then(response => {
+        if (!response.ok) throw new Error('Arquivo não encontrado: ' + nome);
+        return response.arrayBuffer();
+      })
+      .then(data => {
+        if (tipo === 'cad') carregarCadastros(null, data);
+        else if (tipo === 'esp') carregarEspecificacoes(null, data);
+        else if (tipo === 'tpl') carregarTemplate(null, data);
+      })
+      .catch(err => {
+        console.warn('Erro ao carregar ' + nome + ':', err.message);
+        document.getElementById('ss-' + tipo).textContent = '❌ Falhou: ' + err.message + ' — selecione manualmente';
+      });
+  }
+
+  promises.push(loadArquivo('cad', ARQUIVOS.cad));
+  promises.push(loadArquivo('esp', ARQUIVOS.esp));
+  promises.push(loadArquivo('tpl', ARQUIVOS.tpl));
+
+  await Promise.allSettled(promises);
+  verificarSetupCompleto();
+}
+
+function carregarCadastros(file, arrayBuffer){
+  var processar = function(data){
     try{
-      var data = new Uint8Array(e.target.result);
       var wb = XLSX.read(data, {type:'array'});
       var lrng = function(aba){ var ws=wb.Sheets[aba]; return ws?XLSX.utils.sheet_to_json(ws,{defval:'',range:2}):[] };
       DB.cad = {
-        unidades:    lrng('UNIDADES').filter(function(r){ return r.SIGLA && r.SIGLA!=='SIGLA'; }),
-        responsaveis:lrng('RESPONSAVEIS').filter(function(r){ return r.NOME && r.NOME!=='NOME'; }),
+        unidades: lrng('UNIDADES').filter(function(r){ return r.SIGLA && r.SIGLA!=='SIGLA'; }),
+        responsaveis: lrng('RESPONSAVEIS').filter(function(r){ return r.NOME && r.NOME!=='NOME'; }),
         modalidades: lrng('MODALIDADES').filter(function(r){ return r.MODALIDADE && r.MODALIDADE!=='MODALIDADE'; }),
-        servicos:    lrng('TIPOS_SERVICO').filter(function(r){ return r.NOME_SERVICO && r.NOME_SERVICO!=='NOME_SERVICO'; })
+        servicos: lrng('TIPOS_SERVICO').filter(function(r){ return r.NOME_SERVICO && r.NOME_SERVICO!=='NOME_SERVICO'; })
       };
       document.getElementById('si-cad').classList.add('ok');
       document.getElementById('ss-cad').textContent = DB.cad.unidades.length+' unidades · '+DB.cad.responsaveis.length+' responsáveis · '+DB.cad.servicos.length+' serviços';
@@ -691,15 +636,20 @@ function carregarCadastros(){
       document.getElementById('ss-cad').textContent = '❌ Erro: '+err.message;
     }
   };
-  r.readAsArrayBuffer(f);
+
+  if (arrayBuffer) {
+    processar(new Uint8Array(arrayBuffer));
+  } else {
+    var f = file || document.getElementById('fi-cad').files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(e){ processar(new Uint8Array(e.target.result)); };
+    r.readAsArrayBuffer(f);
+  }
 }
 
-function carregarEspecificacoes(){
-  var f = document.getElementById('fi-esp').files[0]; if(!f) return;
-  var r = new FileReader();
-  r.onload = function(e){
+function carregarEspecificacoes(file, arrayBuffer){
+  var processar = function(data){
     try{
-      var data = new Uint8Array(e.target.result);
       var wb = XLSX.read(data, {type:'array'});
       DB.esp = {por_disciplina: {}};
       wb.SheetNames.filter(function(n){ return n!=='INDICE'; }).forEach(function(sheetName){
@@ -718,20 +668,34 @@ function carregarEspecificacoes(){
       document.getElementById('ss-esp').textContent = '❌ Erro: '+err.message;
     }
   };
-  r.readAsArrayBuffer(f);
+
+  if (arrayBuffer) {
+    processar(new Uint8Array(arrayBuffer));
+  } else {
+    var f = file || document.getElementById('fi-esp').files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(e){ processar(new Uint8Array(e.target.result)); };
+    r.readAsArrayBuffer(f);
+  }
 }
 
-function carregarTemplate(){
-  var f = document.getElementById('fi-tpl').files[0]; if(!f) return;
-  var r = new FileReader();
-  r.onload = function(e){
-    DB.tplBytes = new Uint8Array(e.target.result);
+function carregarTemplate(file, arrayBuffer){
+  var processar = function(data){
+    DB.tplBytes = data;
     document.getElementById('si-tpl').classList.add('ok');
-    document.getElementById('ss-tpl').textContent = '✅ '+f.name+' ('+Math.round(f.size/1024)+' KB)';
+    document.getElementById('ss-tpl').textContent = '✅ Template carregado ('+Math.round(data.byteLength/1024)+' KB)';
     verificarSetupCompleto();
     atualizarBancoTags();
   };
-  r.readAsArrayBuffer(f);
+
+  if (arrayBuffer) {
+    processar(new Uint8Array(arrayBuffer));
+  } else {
+    var f = file || document.getElementById('fi-tpl').files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(e){ processar(new Uint8Array(e.target.result)); };
+    r.readAsArrayBuffer(f);
+  }
 }
 
 function verificarSetupCompleto(){
@@ -756,7 +720,7 @@ function entrarNoSistema(){
   updatePjBadge();
 }
 
-// ─── NAVEGAÇÃO ────────────────────────────────────────────────────────────────
+// ─── NAVEGAÇÃO ─────────────────────────────────────────────────────────────────
 function showPage(p){
   document.querySelectorAll('.page').forEach(function(e){ e.classList.remove('active'); });
   document.querySelectorAll('.tab').forEach(function(e){ e.classList.remove('active'); });
@@ -772,11 +736,11 @@ function showBancoTab(t){
   document.getElementById('ac-'+t).classList.add('active');
 }
 
-// ─── WIZARD ───────────────────────────────────────────────────────────────────
+// ─── WIZARD ────────────────────────────────────────────────────────────────────
 function buildSteps(){
   STEPS = [
     {n:1, ico:'🏛️', lbl:'Identificação', fp:'fp-1'},
-    {n:2, ico:'✍️', lbl:'Escopo',         fp:'fp-2'},
+    {n:2, ico:'✍️', lbl:'Escopo', fp:'fp-2'},
   ];
   discsSel.forEach(function(did, i){
     var dc = DISC_CONFIG.find(function(d){ return d.id===did; });
@@ -784,7 +748,6 @@ function buildSteps(){
   });
   STEPS.push({n:STEPS.length+1, ico:'✅', lbl:'Revisar', fp:'fp-rev'});
 }
-
 function buildWizardUI(){
   buildSteps();
   document.getElementById('wsteps').innerHTML = STEPS.map(function(s){
@@ -830,7 +793,7 @@ function setAutoDate(){
   var er=document.getElementById('f-REVISAO'); if(er&&!er._locked) er.value='Rev. 00';
 }
 
-// ─── DISC SELECTOR ────────────────────────────────────────────────────────────
+// ─── DISC SELECTOR ─────────────────────────────────────────────────────────────
 function renderDiscSelector(){
   var sel = discsSel;
   document.getElementById('disc-selector').innerHTML = DISC_CONFIG.map(function(d){
@@ -845,14 +808,14 @@ function renderDiscSelector(){
 
 function toggleDisc(did){
   var idx = discsSel.indexOf(did);
-  if(idx > -1) discsSel.splice(idx, 1);
+  if(idx > -1) discsSel.splice(idx,1);
   else discsSel.push(did);
   renderDiscSelector();
   renderDiscFps();
   buildWizardUI();
 }
 
-// ─── ETAPAS DAS DISCIPLINAS ───────────────────────────────────────────────────
+// ─── ETAPAS DAS DISCIPLINAS ────────────────────────────────────────────────────
 function renderDiscFps(){
   var container = document.getElementById('fps-disciplinas');
   container.innerHTML = '';
@@ -860,11 +823,9 @@ function renderDiscFps(){
     var dc = DISC_CONFIG.find(function(d){ return d.id===did; });
     if(!dc) return;
     var servicos = (DB.esp && DB.esp.por_disciplina[did]) ? DB.esp.por_disciplina[did] : [];
-
     var fp = document.createElement('div');
     fp.className = 'fp';
     fp.id = 'fp-disc-'+did;
-
     var srvHtml = '';
     if(servicos.length){
       srvHtml = '<div class="srv-toolbar">'
@@ -889,14 +850,12 @@ function renderDiscFps(){
     } else {
       srvHtml = '<div class="empty" style="padding:18px">⚠️ Importe o BANCO_ESPECIFICACOES.xlsx para ver os serviços</div>';
     }
-
     fp.innerHTML =
       '<div class="resp-banner" style="background:'+dc.cor+'12;border-color:'+dc.cor+'40">'
       +'<span class="rbi">'+dc.ico+'</span>'
       +'<div><strong style="color:'+dc.cor+'">'+dc.nome+'</strong>'
       +'<p>Selecione os serviços do escopo e informe o responsável técnico desta disciplina.</p></div>'
       +'</div>'
-
       +'<div class="del-box">'
       +'<h3>🔄 Delegação</h3>'
       +'<div class="del-toggle"><input type="checkbox" id="del-chk-'+did+'" onchange="toggleDelegacao(\''+did+'\')"><span>Esta disciplina será preenchida por outro profissional</span></div>'
@@ -904,7 +863,6 @@ function renderDiscFps(){
       +'<div class="f"><label>Nome do Delegado</label><input type="text" id="del-nome-'+did+'" placeholder="Nome completo"></div>'
       +'<div class="f"><label>Contato / E-mail</label><input type="text" id="del-cont-'+did+'" placeholder="e-mail ou telefone"></div>'
       +'</div></div>'
-
       +'<div class="card" id="cdisc-'+did+'">'
       +'<div class="ch" style="background:'+dc.cor+'12;border-color:'+dc.cor+'40">'
       +'<div class="ch-left"><span style="font-size:16px">'+dc.ico+'</span><h2 style="color:'+dc.cor+'">'+dc.nome+'</h2></div>'
@@ -912,7 +870,7 @@ function renderDiscFps(){
       +'<div class="cb">'
       +'<div class="fg" style="margin-bottom:14px">'
       +'<div class="f"><label>Responsável Técnico desta Disciplina</label>'
-      +'<select id="rt-sel-'+did+'" onchange="document.getElementById(\'rt-nm-'+did+'\').value=this.options[this.selectedIndex].text.split(\' (\')[0]"><option value="">— Selecione o RT —</option></select>'
+      +'<select id="rt-sel-'+did+'" onchange="document.getElementById(\'rt-nm-\'+did).value=this.options[this.selectedIndex].text.split(\' (\')[0]"><option value="">— Selecione o RT —</option></select>'
       +'<input type="hidden" id="rt-nm-'+did+'"></div>'
       +'<div class="f"><label>Observações Gerais</label>'
       +'<input type="text" id="obs-'+did+'" placeholder="Observações específicas desta disciplina..."></div>'
@@ -921,9 +879,7 @@ function renderDiscFps(){
       +'<div class="f" style="margin-top:14px"><label>Especificações Adicionais (texto livre)</label>'
       +'<textarea id="txt-'+did+'" rows="3" placeholder="Especificações, materiais específicos, restrições ou condições de execução não cobertas pelos itens acima..."></textarea>'
       +'</div></div></div>';
-
     container.appendChild(fp);
-
     // Popular RT select
     if(DB.cad){
       var rtSel = document.getElementById('rt-sel-'+did);
@@ -963,7 +919,8 @@ function toggleDtl(chave){
 }
 
 function selAllDisc(did, on){
-  var list=document.getElementById('sl-'+did); if(!list) return;
+  var list=document.getElementById('sl-'+did);
+  if(!list) return;
   list.querySelectorAll('.srw').forEach(function(r){
     var k=r.querySelector('.schk');
     if(on){ r.classList.add('sel'); if(k) k.textContent='✓'; }
@@ -984,7 +941,7 @@ function getDiscData(did){
     disciplina_nome: (DISC_CONFIG.find(function(d){ return d.id===did; })||{}).nome||did,
     responsavel_tecnico: document.getElementById('rt-nm-'+did) ? document.getElementById('rt-nm-'+did).value : '',
     delegado: delegado,
-    delegado_nome:    document.getElementById('del-nome-'+did) ? document.getElementById('del-nome-'+did).value : '',
+    delegado_nome: document.getElementById('del-nome-'+did) ? document.getElementById('del-nome-'+did).value : '',
     delegado_contato: document.getElementById('del-cont-'+did) ? document.getElementById('del-cont-'+did).value : '',
     observacoes: document.getElementById('obs-'+did) ? document.getElementById('obs-'+did).value : '',
     texto_adicional: document.getElementById('txt-'+did) ? document.getElementById('txt-'+did).value : '',
@@ -992,7 +949,7 @@ function getDiscData(did){
   };
 }
 
-// ─── SELECTS ─────────────────────────────────────────────────────────────────
+// ─── SELECTS ──────────────────────────────────────────────────────────────────
 function popularSelects(){
   if(!DB.cad) return;
   var su=document.getElementById('sel-unidade'), pv=su.value;
@@ -1006,29 +963,27 @@ function popularSelects(){
     su.appendChild(o);
   });
   if(pv) su.value=pv;
-
   ['sel-elaborado','sel-verificado','sel-fiscal','sel-gestor'].forEach(function(id){
     var s=document.getElementById(id), p=s.value;
     s.innerHTML='<option value="">— Selecione —</option>';
     DB.cad.responsaveis.forEach(function(r){
-      var o=document.createElement('option');
-      o.value=r.NOME; o.textContent=r.NOME+' ('+r.CARGO+')'; o.dataset.ini=r.INICIAIS;
+      var o=document.createElement('option'); o.value=r.NOME; o.textContent=r.NOME+' ('+r.CARGO+')'; o.dataset.ini=r.INICIAIS;
       s.appendChild(o);
     });
     if(p) s.value=p;
   });
-
   var sm=document.getElementById('sel-modalidade'), pm=sm.value;
   sm.innerHTML='<option value="">— Selecione —</option>';
   DB.cad.modalidades.forEach(function(m){
-    var o=document.createElement('option'); o.value=m.MODALIDADE; o.textContent=m.MODALIDADE; sm.appendChild(o);
+    var o=document.createElement('option'); o.value=m.MODALIDADE; o.textContent=m.MODALIDADE;
+    sm.appendChild(o);
   });
   if(pm) sm.value=pm;
-
   var ss=document.getElementById('sel-servico'), ps=ss.value;
   ss.innerHTML='<option value="">— Selecione o tipo de serviço —</option>';
   DB.cad.servicos.forEach(function(s){
-    var o=document.createElement('option'); o.value=s.NOME_SERVICO; o.textContent=s.NOME_SERVICO; ss.appendChild(o);
+    var o=document.createElement('option'); o.value=s.NOME_SERVICO; o.textContent=s.NOME_SERVICO;
+    ss.appendChild(o);
   });
   if(ps) ss.value=ps;
 }
@@ -1049,7 +1004,7 @@ function atualizaCodigo(){
   document.getElementById('f-CODIGO').value='SS-'+sigla+'-'+svc+'-EX-ORC-DOC-'+seq+'-R00';
 }
 
-// ─── COLETAR DADOS ────────────────────────────────────────────────────────────
+// ─── COLETAR DADOS ─────────────────────────────────────────────────────────────
 function gv(id){ var e=document.getElementById('f-'+id); return e?e.value.trim():''; }
 
 function collectData(){
@@ -1076,7 +1031,7 @@ function collectData(){
   };
 }
 
-// ─── REVIEW ───────────────────────────────────────────────────────────────────
+// ─── REVIEW ────────────────────────────────────────────────────────────────────
 function buildReview(){
   var d=collectData();
   function rr(lbl,ico,val){
@@ -1097,18 +1052,18 @@ function buildReview(){
       +'<span class="rev-lbl">'+dd.disciplina_nome+'</span>'
       +'<span class="rev-val">'
       +(dd.delegado
-        ? '<span style="color:#805ad5;font-weight:700">DELEGADO</span> → '+(dd.delegado_nome||'sem nome')
-        : 'RT: <b>'+(dd.responsavel_tecnico||'—')+'</b> · '
-          +dd.servicos_selecionados.length+' serviço(s)'
-          +(dd.texto_adicional?' · <span style="color:var(--am)">+texto adicional</span>':'')
-      )+'</span></div>';
+        ? '<span style="color:#805ad5;font-weight:700">DELEGADO</span> → '+ (dd.delegado_nome||'sem nome')
+        : 'RT: <b>'+(dd.responsavel_tecnico||'—')+'</b> · '+dd.servicos_selecionados.length+' serviço(s)'
+         +(dd.texto_adicional?' · <span style="color:var(--am)">+texto adicional</span>':'')
+       )+'</span></div>';
   });
   document.getElementById('review-content').innerHTML=html;
 }
 
-// ─── SALVAR ───────────────────────────────────────────────────────────────────
+// ─── SALVAR ────────────────────────────────────────────────────────────────────
 function salvarRascunho(){
-  var d=collectData(); d.status='rascunho';
+  var d=collectData();
+  d.status='rascunho';
   var projs=LS.projs();
   if(d.id){ var i=projs.findIndex(function(p){ return p.id===d.id; }); if(i>=0) projs[i]={...projs[i],...d}; else projs.push(d); }
   else{ d.id='p'+Date.now(); document.getElementById('editing-id').value=d.id; projs.push(d); }
@@ -1130,7 +1085,7 @@ function novoFormulario(){
   showPage('formulario');
 }
 
-// ─── PROJETOS ─────────────────────────────────────────────────────────────────
+// ─── PROJETOS ──────────────────────────────────────────────────────────────────
 function renderProjetos(){
   var projs=LS.projs();
   var srch=(document.getElementById('pj-srch')||{value:''}).value.toLowerCase();
@@ -1139,7 +1094,6 @@ function renderProjetos(){
     return (!srch||((p.UNIDADE||'').toLowerCase().includes(srch)||(p.SERVICO||'').toLowerCase().includes(srch)))
         && (!fst||p.status===fst);
   }).sort(function(a,b){ return (b._ts||0)-(a._ts||0); });
-
   var g=document.getElementById('pj-grid');
   if(!filtered.length){ g.innerHTML='<div class="empty">📁 Nenhum projeto salvo</div>'; return; }
   g.innerHTML=filtered.map(function(p){
@@ -1165,7 +1119,9 @@ function renderProjetos(){
   }).join('');
 }
 
-function updatePjBadge(){ document.getElementById('proj-count-badge').textContent=LS.projs().length; }
+function updatePjBadge(){
+  document.getElementById('proj-count-badge').textContent=LS.projs().length; }
+
 function reabrirProj(id){
   var p=LS.projs().find(function(x){ return x.id===id; }); if(!p) return;
   discsSel=(p.disciplinas_selecionadas||[]).slice();
@@ -1179,12 +1135,13 @@ function reabrirProj(id){
   curStep=1; updateWizUI();
   showPage('formulario');
 }
-function deletarProj(id){ if(!confirm('Remover projeto?')) return; LS.sProjs(LS.projs().filter(function(p){ return p.id!==id; })); renderProjetos(); updatePjBadge(); }
+function deletarProj(id){
+  if(!confirm('Remover projeto?')) return; LS.sProjs(LS.projs().filter(function(p){ return p.id!==id; })); renderProjetos(); updatePjBadge(); }
 async function gerarDoProjeto(id){ var p=LS.projs().find(function(x){ return x.id===id; }); if(p) await gerarDocumento(p); }
 function exportarProjetos(){ var blob=new Blob([JSON.stringify(LS.projs(),null,2)],{type:'application/json'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='projetos_gen.json'; a.click(); }
 function importarProjetos(inp){ var f=inp.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(e){ try{ var ps=JSON.parse(e.target.result); if(!Array.isArray(ps)) throw new Error('inválido'); LS.sProjs(ps); renderProjetos(); updatePjBadge(); alert('✅ '+ps.length+' projetos importados'); }catch(err){ alert('❌ '+err.message); } }; r.readAsText(f); }
 
-// ─── BANCO PREVIEW ────────────────────────────────────────────────────────────
+// ─── BANCO PREVIEW ─────────────────────────────────────────────────────────────
 function atualizarBancoTags(){
   var tc=document.getElementById('bt-cad');
   var te=document.getElementById('bt-esp');
@@ -1215,17 +1172,15 @@ function renderBancoPreview(){
   }
 }
 
-// ─── GERADOR .docx ────────────────────────────────────────────────────────────
-function esc(s){
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+// ─── GERADOR .docx ─────────────────────────────────────────────────────────────
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function expandMultiPara(xml, marker, texto){
   if(!texto || !xml.includes(marker)) return xml;
   var idx = xml.indexOf(marker);
   if(idx === -1) return xml;
   var pStart = xml.lastIndexOf('<w:p ', idx);
-  var pEnd   = xml.indexOf('</w:p>', idx) + 6;
+  var pEnd = xml.indexOf('</w:p>', idx) + 6;
   if(pStart === -1 || pEnd <= 5) return xml.split(marker).join(esc(texto));
   var origPara = xml.slice(pStart, pEnd);
   // Extrair pPr
@@ -1248,7 +1203,8 @@ function buildNormaXml(n){
 }
 
 async function salvarEGerar(){
-  var d=collectData(); d.status='emitido'; d._ts=Date.now();
+  var d=collectData();
+  d.status='emitido'; d._ts=Date.now();
   var projs=LS.projs();
   if(d.id){ var i=projs.findIndex(function(p){ return p.id===d.id; }); if(i>=0) projs[i]={...projs[i],...d}; else projs.push(d); }
   else{ d.id='p'+Date.now(); document.getElementById('editing-id').value=d.id; projs.push(d); }
@@ -1275,17 +1231,14 @@ async function gerarDocumento(data){
       }
       var srvSel=dd.servicos_selecionados||[];
       if(!srvSel.length && !dd.texto_adicional) return;
-
       // Cabeçalho da disciplina
       servExecXml+='<w:p><w:pPr><w:pStyle w:val="Ttulo3"/><w:spacing w:after="80"/></w:pPr><w:r><w:t>'+esc(dd.disciplina_nome)+'</w:t></w:r></w:p>';
-
       // Responsável Técnico
       if(dd.responsavel_tecnico){
         servExecXml+='<w:p><w:pPr><w:spacing w:before="0" w:after="80"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
           +'<w:r><w:rPr><w:b/><w:bCs/><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">Responsável Técnico: </w:t></w:r>'
           +'<w:r><w:rPr><w:szCs w:val="20"/></w:rPr><w:t>'+esc(dd.responsavel_tecnico)+'</w:t></w:r></w:p>';
       }
-
       // Normas desta disciplina
       var normasDisc=[];
       srvSel.forEach(function(s){
@@ -1294,7 +1247,6 @@ async function gerarDocumento(data){
           if(todasNormas.indexOf(n)===-1) todasNormas.push(n);
         });
       });
-
       // Serviços selecionados
       srvSel.forEach(function(s){
         var texto=s.TEXTO_TECNICO||'';
@@ -1313,7 +1265,6 @@ async function gerarDocumento(data){
           });
         }
       });
-
       // Texto adicional
       if(dd.texto_adicional){
         servExecXml+='<w:p><w:pPr><w:spacing w:before="100" w:after="60"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
@@ -1388,11 +1339,12 @@ async function gerarDocumento(data){
   if(btn) btn.disabled=false;
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
+// ─── INIT ──────────────────────────────────────────────────────────────────────
 renderDiscSelector();
 buildWizardUI();
 setAutoDate();
 updatePjBadge();
+autoLoadArquivos();
 </script>
 </body>
 </html>
