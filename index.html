@@ -1226,7 +1226,7 @@ async function gerarDocumento(data){
     discsData.forEach(function(dd){
       if(dd.delegado){
         servExecXml+='<w:p><w:pPr><w:pStyle w:val="Ttulo3"/><w:spacing w:after="120"/></w:pPr><w:r><w:t>'+esc(dd.disciplina_nome)+'</w:t></w:r></w:p>';
-        servExecXml+='<w:p><w:pPr><w:rPr><w:i/><w:color w:val="9B2C2C"/><w:szCs w:val="20"/></w:rPr></w:pPr><w:r><w:rPr><w:i/><w:color w:val="9B2C2C"/><w:szCs w:val="20"/></w:rPr><w:t>DISCIPLINA DELEGADA — a ser preenchida por: '+esc(dd.delegado_nome||'responsável técnico')+(dd.delegado_contato?' ('+esc(dd.delegado_contato)+')'):'')+'</w:t></w:r></w:p>';
+        servExecXml+='<w:p><w:pPr><w:rPr><w:i/><w:color w:val="9B2C2C"/><w:szCs w:val="20"/></w:rPr></w:pPr><w:r><w:rPr><w:i/><w:color w:val="9B2C2C"/><w:szCs w:val="20"/></w:rPr><w:t>DISCIPLINA DELEGADA — a ser preenchida por: '+esc(dd.delegado_nome||'responsável técnico') + (dd.delegado_contato ? ' (' + esc(dd.delegado_contato) + ')' : '') + '</w:t></w:r></w:p>';
         return;
       }
       var srvSel=dd.servicos_selecionados||[];
