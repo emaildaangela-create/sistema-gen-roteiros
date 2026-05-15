@@ -37,14 +37,28 @@ MACRO_ITEMS = {
     30: "30 - SERVIÇOS FINAIS"
 }
 
+# Mapping macro_id to the Frontend Tabs (Disciplines)
+DISCIPLINAS_MAP = {
+    20: ("eletrica", "Instalações Elétricas"),
+    16: ("eletrica", "Instalações Elétricas"), # luminárias usually go to eletrica
+    21: ("hidrossanitaria", "Instalações Hidrossanitárias"),
+    22: ("hidrossanitaria", "Instalações Hidrossanitárias"),
+    27: ("ppci", "PPCI - Prevenção e Combate a Incêndio"),
+    24: ("climatizacao", "Climatização, Mecânica e Elevadores"),
+    25: ("climatizacao", "Climatização, Mecânica e Elevadores"),
+    26: ("climatizacao", "Climatização, Mecânica e Elevadores"),
+    23: ("dados", "Dados, Voz e CFTV"),
+    29: ("paisagismo", "Paisagismo e Obras Externas"),
+}
+
 def clean_text(text):
     return " ".join(text.split()).strip()
 
-def create_key(nome_servico, prefix_num):
+def create_key(disc_key, nome_servico, prefix_num):
     slug = str(nome_servico).lower()
     slug = unicodedata.normalize('NFKD', slug).encode('ASCII', 'ignore').decode('utf-8')
     slug = re.sub(r'[^a-z0-9]+', '-', slug).strip('-')
-    return f"civil|{prefix_num:03d}-{slug[:40]}"
+    return f"{disc_key}|{prefix_num:03d}-{slug[:40]}"
 
 def assign_macro_item(text, h2, h3):
     t_lower = (h2 + " " + h3 + " " + text).lower()
@@ -90,7 +104,7 @@ def assign_macro_item(text, h2, h3):
         return 4
     if "árvore" in t_lower or "vegetação" in t_lower or "jardim" in t_lower or "paisagismo" in t_lower or "quadra de areia" in t_lower:
         return 29
-    if "catraca" in t_lower or "voz" in t_lower or "dados" in t_lower:
+    if "catraca" in t_lower or "voz" in t_lower or "dados" in t_lower or "cftv" in t_lower:
         return 23
     if "mdf" in t_lower or "marcenaria" in t_lower or "armário" in t_lower:
         return 19
@@ -159,6 +173,7 @@ def generate_specs():
                     'TEXTO_TECNICO': text + ('.' if not text.endswith(('.', ';')) else '')
                 })
 
+    # Deduplicate
     unique_items = []
     seen = set()
     for item in items:
@@ -168,21 +183,45 @@ def generate_specs():
             
     unique_items.sort(key=lambda x: x['macro_id'])
     
-    records = []
+    # Split by disciplines for the frontend sheets
+    sheets_data = {}
+    
     for idx, item in enumerate(unique_items, 1):
-        records.append({
-            'CHAVE': create_key(item['NOME_SERVICO'], idx),
+        macro_id = item['macro_id']
+        disc_key, disc_name = DISCIPLINAS_MAP.get(macro_id, ("civil", "Obras Civis"))
+        
+        if disc_name not in sheets_data:
+            sheets_data[disc_name] = []
+            
+        sheets_data[disc_name].append({
+            'CHAVE': create_key(disc_key, item['NOME_SERVICO'], len(sheets_data[disc_name]) + 1),
             'TIPO_SERVICO': item['TIPO_SERVICO'],
             'NOME_SERVICO': item['NOME_SERVICO'],
-            'NORMAS_ABNT': 'ABNT NBR 15575; ABNT NBR 16280',
+            'NORMAS_ABNT': 'ABNT NBR 15575; ABNT NBR 16280', # can be customized later if needed
             'TEXTO_TECNICO': item['TEXTO_TECNICO']
         })
         
-    df = pd.DataFrame(records)
+    output_path = r"C:\Users\email\OneDrive\Documentos\GitHub\sistema-gen-roteiros\BANCO_ESPECIFICACOES.xlsx"
     
-    output_path = r"C:\Users\email\OneDrive\Documentos\GitHub\sistema-gen-roteiros\especificacoes.xlsx"
-    df.to_excel(output_path, index=False)
-    print(f"Generated {len(df)} specifications in {output_path}")
+    with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+        for sheet_name, records in sheets_data.items():
+            df = pd.DataFrame(records)
+            
+            # The frontend expects 2 rows of headers before the actual headers
+            header1 = [f"BANCO_ESPECIFICACOES - {sheet_name}"] + [""] * (len(df.columns) - 1)
+            header2 = ["Base inicial extraída do roteiro modelo"] + [""] * (len(df.columns) - 1)
+            header3 = df.columns.tolist()
+            
+            # Create a new dataframe with the custom headers at the top
+            top_rows = pd.DataFrame([header1, header2, header3], columns=df.columns)
+            
+            # Concatenate custom headers with data
+            final_df = pd.concat([top_rows, df], ignore_index=True)
+            
+            # Write to excel without index and without default pandas header
+            final_df.to_excel(writer, sheet_name=sheet_name, index=False, header=False)
+            
+    print(f"Generated {len(unique_items)} specifications across {len(sheets_data)} sheets in {output_path}")
 
 if __name__ == "__main__":
     generate_specs()
