@@ -1,0 +1,3503 @@
+tem <!-- Arquivo HTML modificado com carregamento automático dos arquivos -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GEN — Gerador de Roteiros Técnicos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --az:#1a365d;--az2:#2c5282;--az3:#3182ce;--azc:#ebf4ff;--azb:#bee3f8;
+  --vd:#276749;--vdc:#f0fff4;--vdb:#9ae6b4;
+  --am:#744210;--amc:#fffbeb;--amb:#fbd38d;
+  --vm:#9b2c2c;--vmc:#fff5f5;--vmb:#fed7d7;
+  --ci:#4a5568;--cib:#e2e8f0;--cic:#f7fafc;
+  --tx:#1a202c;--wh:#fff;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(0,0,0,.10);
+  --r:10px;
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh;font-size:13px}
+
+/* ── TOPBAR ─────────────────────────────────────────────────────── */
+.topbar{background:linear-gradient(135deg,var(--az) 0%,var(--az2) 100%);color:#fff;padding:0 24px;display:flex;align-items:center;height:54px;box-shadow:0 2px 12px rgba(2,54,93,.35);position:sticky;top:0;z-index:200;gap:0}
+.logo{font-size:15px;font-weight:700;letter-spacing:.5px;margin-right:20px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.logo-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:600;letter-spacing:.8px}
+.tabs{display:flex;height:100%;flex:1}
+.tab{padding:0 16px;height:100%;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;transition:all .15s;opacity:.55;white-space:nowrap}
+.tab:hover{opacity:.85;background:rgba(255,255,255,.06)}
+.tab.active{opacity:1;border-bottom-color:rgba(255,255,255,.7)}
+.tab-badge{background:rgba(255,255,255,.15);border-radius:10px;padding:1px 5px;font-size:10px;font-weight:700}
+.tab-adm{background:#e53e3e;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:800;letter-spacing:.3px}
+.top-actions{display:flex;align-items:center;gap:8px}
+.admin-btn{height:32px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.10);color:#fff;border-radius:7px;padding:0 11px;font-size:11px;font-weight:700;font-family:var(--font);cursor:pointer;white-space:nowrap}
+.admin-btn:hover{background:rgba(255,255,255,.18)}
+
+/* ── SETUP OVERLAY ───────────────────────────────────────────────── */
+.setup-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1a365d 0%,#2c5282 60%,#2b6cb0 100%);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0}
+.setup-overlay.hidden{display:none}
+.setup-box{background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);width:540px;max-width:95vw;overflow:hidden}
+.setup-head{background:linear-gradient(135deg,#1a365d,#2c5282);padding:28px 32px;color:#fff}
+.setup-head h2{font-size:18px;font-weight:700;margin-bottom:6px}
+.setup-head p{font-size:12px;opacity:.75;line-height:1.5}
+.setup-body{padding:28px 32px;display:flex;flex-direction:column;gap:16px}
+.setup-item{border:1.5px solid var(--cib);border-radius:10px;overflow:hidden;transition:border-color .15s}
+.setup-item.ok{border-color:var(--vdb)}
+.setup-item-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--cic);cursor:pointer;transition:background .15s}
+.setup-item-head:hover{background:#f0f4f8}
+.setup-item.ok .setup-item-head{background:var(--vdc)}
+.sih-ico{font-size:18px;flex-shrink:0}
+.sih-info{flex:1}
+.sih-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ci)}
+.sih-status{font-size:11px;color:#718096;margin-top:1px}
+.setup-item.ok .sih-status{color:var(--vd);font-weight:600}
+.sih-btn{font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;border:none;cursor:pointer;background:var(--az3);color:#fff;transition:all .12s;white-space:nowrap}
+.sih-btn:hover{background:#2b6cb0}
+.setup-item.ok .sih-btn{background:var(--cib);color:var(--ci)}
+.setup-item-body{padding:10px 16px 12px;border-top:1px solid var(--cib);background:#fff;display:none}
+.setup-item.open .setup-item-body{display:block}
+.setup-note{font-size:10px;color:#718096;margin-top:6px;line-height:1.4}
+.setup-footer{padding:20px 32px;border-top:1px solid var(--cib);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.setup-footer p{font-size:11px;color:#718096}
+
+/* ── PAGES ────────────────────────────────────────────────────────── */
+.page{display:none;max-width:980px;margin:20px auto;padding:0 14px 80px}
+.page.active{display:block}
+
+/* ── CARDS ────────────────────────────────────────────────────────── */
+.card{background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
+.ch{background:var(--azc);border-bottom:2px solid var(--azb);padding:10px 18px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.ch h2{font-size:11px;font-weight:700;color:var(--az);text-transform:uppercase;letter-spacing:.5px}
+.ch-left{display:flex;align-items:center;gap:8px}
+.ch-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--az);color:#fff;letter-spacing:.3px}
+.cb{padding:18px}
+
+/* ── FORM ─────────────────────────────────────────────────────────── */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg.g3{grid-template-columns:1fr 1fr 1fr}
+.fg.g1{grid-template-columns:1fr}
+.f{display:flex;flex-direction:column;gap:4px}
+.f.s2{grid-column:span 2}.f.s3{grid-column:span 3}
+.f label{font-size:10px;font-weight:700;color:var(--ci);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:5px}
+.req{color:var(--vm);font-size:13px}
+.auto-tag{background:var(--vdc);color:var(--vd);font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700;border:1px solid var(--vdb)}
+.f input,.f select,.f textarea{border:1.5px solid var(--cib);border-radius:7px;padding:8px 11px;font-size:13px;font-family:var(--font);background:#fafafa;transition:border-color .15s,box-shadow .15s;width:100%;color:var(--tx)}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--az3);box-shadow:0 0 0 3px rgba(49,130,206,.1);background:#fff}
+.f input[readonly]{background:var(--vdc);color:var(--vd);border-color:var(--vdb);cursor:default;font-weight:600}
+.f textarea{resize:vertical;min-height:75px;line-height:1.6}
+.f textarea.ta-lg{min-height:190px}
+.svc-builder{border:1.5px solid var(--cib);border-radius:7px;background:#fafafa;padding:10px;display:flex;flex-direction:column;gap:10px}
+.svc-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start}
+.svc-add textarea{min-height:70px;background:#fff}
+.svc-list{display:flex;flex-direction:column;gap:6px;min-height:160px;max-height:330px;overflow:auto;padding:2px}
+.svc-item{display:grid;grid-template-columns:28px 1fr 30px;gap:8px;align-items:start;background:#fff;border:1.5px solid var(--cib);border-radius:7px;padding:8px;cursor:grab}
+.svc-item.svc-group{background:#f0f8ff;border-color:var(--az3);cursor:default}
+.svc-item.dragging{opacity:.55;border-color:var(--az3);box-shadow:0 0 0 3px rgba(49,130,206,.1)}
+.svc-handle{height:24px;display:flex;align-items:center;justify-content:center;color:#718096;font-weight:800;font-size:15px;line-height:1}
+.svc-text{font-size:12px;line-height:1.45;color:var(--tx);white-space:pre-wrap;overflow-wrap:anywhere;padding-top:2px}
+.svc-text.svc-group{font-weight:700;color:#0b3d91}
+.svc-add-controls{display:flex;flex-direction:column;gap:8px}
+.svc-empty{border:1.5px dashed var(--cib);border-radius:7px;color:#718096;font-size:12px;text-align:center;padding:26px 12px;background:#fff}
+.svc-remove{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--vmb);border-radius:6px;background:var(--vmc);color:var(--vm);font-size:16px;line-height:1;cursor:pointer}
+.svc-hidden{display:none}
+.eq-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+.eq-box{display:flex;align-items:flex-start;gap:8px;border:1.5px solid var(--cib);background:#fafafa;border-radius:7px;padding:9px 10px;cursor:pointer;transition:all .12s;min-height:44px}
+.eq-box:hover{background:var(--azc);border-color:var(--azb)}
+.eq-box.on{background:#ebf8ff;border-color:var(--az3)}
+.eq-box input{width:auto;margin-top:2px;accent-color:var(--az3);flex-shrink:0}
+.eq-box span{font-size:12px;line-height:1.35;font-weight:600;color:var(--tx)}
+.eq-add{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}
+.f .hint{font-size:10px;color:#718096;margin-top:2px;line-height:1.3}
+.sdiv{display:flex;align-items:center;gap:8px;margin:16px 0 12px}
+.sdiv span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#a0aec0;white-space:nowrap}
+.sdiv::before,.sdiv::after{content:'';flex:1;height:1px;background:var(--cib)}
+
+/* ── WIZARD ───────────────────────────────────────────────────────── */
+.wsteps{display:flex;background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);overflow-x:auto;margin-bottom:14px;border:1px solid var(--cib)}
+.wstep{flex:0 0 auto;padding:10px 12px;text-align:center;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;font-size:10px;font-weight:700;color:#a0aec0;border-right:1px solid var(--cib);user-select:none;min-width:88px}
+.wstep:last-child{border-right:none}
+.wstep:hover{background:var(--azc);color:var(--az2)}
+.wstep.active{background:var(--azc);border-bottom-color:var(--az3);color:var(--az)}
+.wstep.done{background:var(--vdc);border-bottom-color:var(--vd);color:var(--vd)}
+.wstep.delegated{background:#faf5ff;border-bottom-color:#805ad5;color:#553c9a}
+.wstep-ico{font-size:16px;display:block;margin-bottom:3px}
+.fp{display:none}.fp.active{display:block}
+
+/* ── BUTTONS ──────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 15px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;font-family:var(--font);white-space:nowrap}
+.btn-p{background:var(--az3);color:#fff;box-shadow:0 2px 6px rgba(49,130,206,.25)}
+.btn-p:hover{background:#2b6cb0;transform:translateY(-1px)}
+.btn-s{background:#38a169;color:#fff;box-shadow:0 2px 6px rgba(56,161,105,.2)}
+.btn-s:hover{background:#2f855a}
+.btn-d{background:#e53e3e;color:#fff}.btn-d:hover{background:#c53030}
+.btn-o{background:var(--wh);border:1.5px solid var(--cib);color:var(--ci)}
+.btn-o:hover{border-color:var(--az3);color:var(--az3);background:var(--azc)}
+.btn-lg{padding:13px 24px;font-size:14px;border-radius:10px}
+.btn-full{width:100%;justify-content:center}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ── STATUS ───────────────────────────────────────────────────────── */
+.status{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;display:none}
+.status.loading{background:var(--azc);color:var(--az2);border:1px solid var(--azb);display:block}
+.status.success{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb);display:block}
+.status.error{background:var(--vmc);color:var(--vm);border:1px solid var(--vmb);display:block}
+
+/* ── RESP BANNER ──────────────────────────────────────────────────── */
+.resp-banner{border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;border:1.5px solid}
+.rbi{font-size:20px;flex-shrink:0;margin-top:1px}
+.resp-banner strong{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.resp-banner p{font-size:11px;opacity:.75;line-height:1.4}
+
+/* ── SERVIÇOS CHECKLIST ────────────────────────────────────────────── */
+.srv-toolbar{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.srv-toolbar a{font-size:10px;font-weight:600;color:var(--az3);cursor:pointer;text-decoration:none}
+.srv-toolbar a:hover{text-decoration:underline}
+.srv-count{margin-left:auto;font-size:10px;color:#718096}
+.srv-list{display:flex;flex-direction:column;gap:3px}
+.srv-group{border:1.5px solid var(--cib);border-radius:8px;overflow:hidden;background:#fff;margin-bottom:8px}
+.srv-group-hdr{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fafbff;cursor:pointer;border-bottom:1px solid transparent}
+.srv-group-hdr:hover{background:var(--azc)}
+.srv-group.open .srv-group-hdr{border-bottom-color:var(--cib)}
+.srv-group-caret{font-size:11px;color:var(--az3);width:14px;flex-shrink:0}
+.srv-group-title{font-size:12px;font-weight:800;color:var(--ci);flex:1;line-height:1.3}
+.srv-group-meta{font-size:10px;color:#718096;white-space:nowrap}
+.srv-group-body{display:none;padding:6px;background:#fff}
+.srv-group.open .srv-group-body{display:flex;flex-direction:column;gap:4px}
+.srw{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;border:1.5px solid transparent;transition:all .12s;background:var(--cic)}
+.srw:hover{background:var(--azc);border-color:var(--azb)}
+.srw.sel{background:#ebf8ff;border-color:var(--az3)}
+.schk{width:16px;height:16px;border:2px solid var(--cib);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .12s;font-size:10px;font-weight:700}
+.srw.sel .schk{background:var(--az3);border-color:var(--az3);color:#fff}
+.snm{font-size:12px;font-weight:600;flex:1;line-height:1.3;color:var(--tx)}
+.snormas{font-size:9px;color:#718096;margin-top:2px;font-family:var(--mono)}
+.sexp{font-size:10px;color:var(--az3);cursor:pointer;padding:4px 8px;border-radius:5px;border:1px solid var(--azb);background:var(--wh);flex-shrink:0;margin-top:0;font-weight:700;white-space:nowrap}
+.sdtl{display:none;padding:11px 13px;background:#f0f7ff;border:1px solid var(--azb);font-size:12px;color:var(--ci);line-height:1.65;border-radius:7px;white-space:pre-wrap;overflow-wrap:anywhere}
+.sdtl.open{display:block}
+
+/* ── DELEGAÇÃO ────────────────────────────────────────────────────── */
+.del-box{background:#faf5ff;border:1.5px solid #d6bcfa;border-radius:8px;padding:12px 14px;margin-bottom:14px}
+.del-box h3{font-size:10px;font-weight:700;color:#553c9a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.del-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px}
+.del-toggle input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#805ad5}
+.del-toggle span{font-size:12px;font-weight:500;color:#553c9a}
+.del-flds{display:none;margin-top:10px}
+.del-flds.open{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── DISC SELECTOR ────────────────────────────────────────────────── */
+.disc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:8px;margin-bottom:4px}
+.disc-item{display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--wh);border:2px solid var(--cib);border-radius:8px;cursor:pointer;transition:all .15s;user-select:none}
+.disc-item:hover{border-color:var(--azb);background:var(--azc)}
+.disc-item.on{border-width:2px}
+.disc-item input[type=checkbox]{width:15px;height:15px;cursor:pointer;flex-shrink:0}
+.disc-item-ico{font-size:17px;flex-shrink:0}
+.disc-item-nm{font-size:11px;font-weight:600;flex:1;line-height:1.3;color:var(--tx)}
+
+/* ── PROJETOS ─────────────────────────────────────────────────────── */
+.pj-grid{display:flex;flex-direction:column;gap:8px}
+.pj-card{background:var(--wh);border-radius:var(--r);border:1.5px solid var(--cib);overflow:hidden;transition:all .12s}
+.pj-card:hover{box-shadow:var(--sh2);border-color:var(--azb)}
+.pj-hdr{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;cursor:pointer}
+.pj-num{font-size:9px;font-weight:700;color:var(--az3);background:var(--azc);padding:2px 7px;border-radius:4px;font-family:var(--mono);white-space:nowrap;margin-top:2px}
+.pj-ttl{font-weight:700;font-size:13px;flex:1;line-height:1.25}
+.pj-unit{font-size:10px;color:#718096;margin-top:2px}
+.pj-meta{display:flex;gap:12px;padding:2px 14px 9px;flex-wrap:wrap}
+.pj-mi .pj-ml{font-size:8px;font-weight:700;text-transform:uppercase;color:#a0aec0;letter-spacing:.4px}
+.pj-mi .pj-mv{font-size:11px;font-weight:600}
+.sbg{font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;text-transform:uppercase}
+.s-r{background:var(--cic);color:#718096;border:1px solid var(--cib)}
+.s-em{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb)}
+.pj-act{display:flex;gap:5px;padding:7px 14px;border-top:1px solid var(--cib);background:#fafbff;justify-content:flex-end}
+
+/* ── WIZARD NAV ───────────────────────────────────────────────────── */
+.wnav{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);margin-top:14px;gap:10px;border:1px solid var(--cib)}
+
+/* ── REVIEW ────────────────────────────────────────────────────────── */
+.rev-row{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--cib);align-items:flex-start}
+.rev-ico{font-size:13px;flex-shrink:0;margin-top:1px}
+.rev-lbl{font-size:10px;font-weight:700;color:var(--ci);min-width:175px;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px}
+.rev-val{font-size:12px;color:var(--tx);flex:1;line-height:1.4}
+.rev-empty{font-style:italic;color:#a0aec0}
+.rev-sec{font-size:10px;font-weight:700;color:var(--az);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── BANCO VISUALIZAR ──────────────────────────────────────────────── */
+.atab-bar{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
+.atab{padding:6px 13px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--cib);color:var(--ci);background:var(--wh);transition:all .12s}
+.atab.active{background:var(--azc);border-color:var(--az3);color:var(--az2)}
+.acont{display:none}.acont.active{display:block}
+.stbl{width:100%;border-collapse:collapse;font-size:11px}
+.stbl th{background:var(--cic);padding:7px 11px;text-align:left;font-weight:700;font-size:9px;color:#718096;text-transform:uppercase;border-bottom:2px solid var(--cib);letter-spacing:.4px}
+.stbl td{padding:7px 11px;border-bottom:1px solid var(--cib);vertical-align:top}
+.stbl tr:hover td{background:#fafbfc}
+.tip{background:var(--amc);border:1px solid var(--amb);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--am);display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;line-height:1.5}
+.tbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.fsrch{flex:1;min-width:160px;border:1.5px solid var(--cib);border-radius:7px;padding:7px 10px;font-size:11px;font-family:var(--font)}
+.fsel{border:1.5px solid var(--cib);border-radius:7px;padding:7px 9px;font-size:11px;background:var(--wh);cursor:pointer;font-family:var(--font)}
+.empty{text-align:center;padding:40px 16px;color:#a0aec0;font-size:13px}
+.bs-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.bs-ok{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb)}
+.bs-no{background:var(--amc);color:var(--am);border:1px solid var(--amb)}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .fg,.fg.g3{grid-template-columns:1fr}
+  .f.s2,.f.s3{grid-column:span 1}
+  .wsteps{overflow-x:auto}
+  .del-flds.open{grid-template-columns:1fr}
+  .setup-body{padding:20px}
+  .setup-footer{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ SETUP OVERLAY ═══════ -->
+<div class="setup-overlay hidden" id="setupOverlay">
+  <div class="setup-box">
+    <div class="setup-head">
+      <h2>⚙️ Painel do Administrador</h2>
+      <p>Os arquivos do sistema são carregados automaticamente ao abrir a página.<br>Use este painel apenas para substituir manualmente os arquivos de trabalho.</p>
+    </div>
+    <div class="setup-body">
+      <div class="setup-item" id="si-cad">
+        <div class="setup-item-head" onclick="toggleSetupItem('cad')">
+          <span class="sih-ico">📋</span>
+          <div class="sih-info">
+            <div class="sih-label">BANCO_CADASTROS.xlsx</div>
+            <div class="sih-status" id="ss-cad">Carregando automaticamente...</div>
+          </div>
+          <label class="sih-btn" style="cursor:pointer" onclick="event.stopPropagation()">
+            Substituir arquivo
+            <input type="file" accept=".xlsx" id="fi-cad" style="display:none" onchange="carregarCadastros()">
+          </label>
+        </div>
+      </div>
+
+      <div class="setup-item" id="si-esp">
+        <div class="setup-item-head" onclick="toggleSetupItem('esp')">
+          <span class="sih-ico">📐</span>
+          <div class="sih-info">
+            <div class="sih-label">BANCO_ESPECIFICACOES.xlsx</div>
+            <div class="sih-status" id="ss-esp">Carregando automaticamente...</div>
+          </div>
+          <label class="sih-btn" style="cursor:pointer" onclick="event.stopPropagation()">
+            Substituir arquivo
+            <input type="file" accept=".xlsx" id="fi-esp" style="display:none" onchange="carregarEspecificacoes()">
+          </label>
+        </div>
+      </div>
+
+      <div class="setup-item" id="si-tpl">
+        <div class="setup-item-head" onclick="toggleSetupItem('tpl')">
+          <span class="sih-ico">📄</span>
+          <div class="sih-info">
+            <div class="sih-label">TEMPLATE.docx</div>
+            <div class="sih-status" id="ss-tpl">Carregando automaticamente...</div>
+          </div>
+          <label class="sih-btn" style="cursor:pointer" onclick="event.stopPropagation()">
+            Substituir arquivo
+            <input type="file" accept=".docx" id="fi-tpl" style="display:none" onchange="carregarTemplate()">
+          </label>
+        </div>
+      </div>
+
+    </div>
+    <div class="setup-footer">
+      <p id="setup-footer-msg">Carregando arquivos automaticamente...</p>
+      <button class="btn btn-p" id="btn-entrar" onclick="fecharPainelAdmin()">
+        Fechar painel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ TOPBAR ═══════ -->
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-badge">GEN</span>
+    Roteiros Técnicos
+  </div>
+  <div class="tabs">
+    <div class="tab" onclick="showPage('projetos')" id="tab-projetos">
+      📁 Projetos <span class="tab-badge" id="proj-count-badge">0</span>
+    </div>
+    <div class="tab active" onclick="showPage('formulario')" id="tab-formulario">
+      📝 Novo Roteiro
+    </div>
+    <div class="tab" onclick="showPage('banco')" id="tab-banco">
+      🗄️ Banco de Dados <span class="tab-adm">ADM</span>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button class="admin-btn" onclick="abrirPainelAdmin()">⚙️ Admin</button>
+  </div>
+</div>
+
+<!-- ═══════ PROJETOS ═══════ -->
+<div class="page" id="page-projetos">
+  <div class="card">
+    <div class="ch">
+      <div class="ch-left"><span>📁</span><h2>Projetos Salvos</h2></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-o" onclick="exportarProjetos()">📤 Exportar .json</button>
+        <label class="btn btn-o" style="cursor:pointer">
+          📥 Importar
+          <input type="file" accept=".json" style="display:none" onchange="importarProjetos(this)">
+        </label>
+        <button class="btn btn-p" onclick="novoFormulario()">+ Novo Roteiro</button>
+      </div>
+    </div>
+    <div class="cb">
+      <div class="tbar">
+        <input class="fsrch" id="pj-srch" placeholder="🔍 Buscar por unidade ou serviço..." oninput="renderProjetos()">
+        <select class="fsel" id="pj-fst" onchange="renderProjetos()">
+          <option value="">Todos os status</option>
+          <option value="rascunho">Rascunho</option>
+          <option value="emitido">Emitido</option>
+        </select>
+      </div>
+      <div id="pj-grid" class="pj-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FORMULÁRIO ═══════ -->
+<div class="page active" id="page-formulario">
+  <div class="wsteps" id="wsteps"></div>
+
+  <!-- ETAPA 1 -->
+  <div class="fp active" id="fp-1">
+    <div class="card">
+      <div class="ch">
+        <div class="ch-left">
+          <span class="ch-tag">ETAPA 1</span>
+          <h2>Identificação da Unidade e Obra</h2>
+        </div>
+        <span id="editing-badge" style="display:none;font-size:10px;font-weight:700;color:var(--vd);background:var(--vdc);border:1px solid var(--vdb);padding:2px 8px;border-radius:5px"></span>
+      </div>
+      <div class="cb">
+        <div class="fg">
+          <div class="f s2">
+            <label>Unidade <span class="req">*</span></label>
+            <input type="text" id="sel-unidade" list="datalist-unidade" onchange="onUnidade()">
+            <datalist id="datalist-unidade"></datalist>
+          </div>
+          <div class="f s2">
+            <label>Nome completo <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-UNIDADE" readonly>
+          </div>
+          <div class="f s2">
+            <label>Endereço <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-ENDERECO" readonly>
+          </div>
+          <div class="f">
+            <label>CNPJ <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-CNPJ" readonly>
+          </div>
+          <div class="f">
+            <label>Sigla <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-SIGLA" readonly>
+          </div>
+        </div>
+        <div class="sdiv"><span>Objeto e Regime</span></div>
+        <div class="fg">
+          <div class="f s2">
+            <label>Nome do Projeto <span class="req">*</span></label>
+            <input type="text" id="f-SERVICO" placeholder="Ex: Reforma da cobertura da unidade" oninput="atualizaCodigo()">
+          </div>
+          <div class="f">
+            <label>Regime de Contratação <span class="req">*</span></label>
+            <select id="sel-modalidade" onchange="document.getElementById('f-REGIME_CONTRATACAO').value=this.options[this.selectedIndex].text"><option value="">— Selecione —</option></select>
+            <input type="hidden" id="f-REGIME_CONTRATACAO">
+          </div>
+          <div class="f">
+            <label>Nº sequencial do documento <span class="req">*</span></label>
+            <input type="text" id="f-SEQ" placeholder="001" maxlength="3" oninput="this.value=this.value.replace(/\D/g,'');atualizaCodigo()">
+            <div class="hint">3 dígitos — ex: 001, 002...</div>
+          </div>
+        </div>
+        <div class="fg g3" style="margin-top:10px">
+          <div class="f">
+            <label>Código do Documento <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-CODIGO" readonly style="font-family:var(--mono);font-size:11px">
+          </div>
+          <div class="f">
+            <label>Data de Emissão <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-DATA" readonly>
+          </div>
+          <div class="f">
+            <label>Revisão <span class="auto-tag">automático</span></label>
+            <input type="text" id="f-REVISAO" readonly>
+          </div>
+        </div>
+        <div class="sdiv"><span>Controle de Revisão</span></div>
+        <div class="fg g3">
+          <div class="f">
+            <label>Índice — Descrição <span class="req">*</span></label>
+            <input type="text" id="f-INDICE_REV" placeholder="Emissão inicial">
+          </div>
+          <div class="f">
+            <label>Elaborado por <span class="req">*</span></label>
+            <input type="text" id="sel-elaborado" list="datalist-elaborado" onchange="updateElaborado()">
+            <datalist id="datalist-elaborado"></datalist>
+            <input type="hidden" id="f-ELABORADO">
+          </div>
+          <div class="f">
+            <label>Verificado por</label>
+            <input type="text" id="sel-verificado" list="datalist-verificado" onchange="updateVerificado()">
+            <datalist id="datalist-verificado"></datalist>
+            <input type="hidden" id="f-VERIFICADO">
+          </div>
+          <div class="f">
+            <label>Aprovado por</label>
+            <input type="text" id="sel-aprovado" list="datalist-aprovado" onchange="updateAprovado()">
+            <datalist id="datalist-aprovado"></datalist>
+            <input type="hidden" id="f-APROVADO">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ETAPA 2 -->
+  <div class="fp" id="fp-2">
+    <div class="card">
+      <div class="ch">
+        <div class="ch-left"><span class="ch-tag">ETAPA 2</span><h2>Escopo, Responsáveis e Disciplinas</h2></div>
+      </div>
+      <div class="cb">
+        <div class="fg">
+          <div class="f">
+            <label>Fiscal do Contrato <span class="req">*</span></label>
+            <input type="text" id="sel-fiscal" list="datalist-fiscal" onchange="updateFiscal()">
+            <datalist id="datalist-fiscal"></datalist>
+            <input type="hidden" id="f-FISCAL_CONTRATO">
+          </div>
+          <div class="f">
+            <label>Gestor do Contrato <span class="req">*</span></label>
+            <input type="text" id="sel-gestor" list="datalist-gestor" onchange="updateGestor()">
+            <datalist id="datalist-gestor"></datalist>
+            <input type="hidden" id="f-GESTOR_CONTRATO">
+          </div>
+          <div class="f">
+            <label>Prazo de Execução <span class="req">*</span></label>
+            <input type="text" id="f-PRAZO_EXECUCAO" placeholder="Ex: 180 (cento e oitenta) dias corridos">
+          </div>
+          <div class="f">
+            <label>Prazo de Vigência <span class="req">*</span></label>
+            <input type="text" id="f-PRAZO_VIGENCIA" placeholder="Ex: 360 (trezentos e sessenta) dias corridos">
+          </div>
+          <div class="f s2">
+            <label>Telefone do Fiscal</label>
+            <input type="text" id="f-TELEFONE_FISCAL" placeholder="(21) 9XXXX-XXXX">
+          </div>
+        </div>
+        <div class="sdiv"><span>Justificativa e Escopo</span></div>
+        <div class="fg g1">
+          <div class="f">
+            <label>Justificativa para Contratação <span class="req">*</span></label>
+            <textarea id="f-JUSTIFICATIVA" rows="5" placeholder="Descreva o contexto da necessidade, estado atual da edificação e objetivo da intervenção. Use Enter para separar parágrafos."></textarea>
+          </div>
+          <div class="f">
+            <label>Relação dos Principais Serviços</label>
+            <div class="svc-builder">
+              <div class="svc-add">
+                <textarea id="svc-principal-input" rows="2" placeholder="Digite um serviço principal ou título de grupo..."></textarea>
+                <div class="svc-add-controls">
+                  <button type="button" class="btn btn-p" onclick="adicionarServicoPrincipal()">Adicionar serviço</button>
+                  <button type="button" class="btn btn-s" onclick="adicionarTituloServicoPrincipal()">Adicionar título</button>
+                </div>
+              </div>
+              <div class="svc-list" id="svc-principal-list"></div>
+            </div>
+            <textarea id="f-RELACAO_SERVICOS" class="svc-hidden"></textarea>
+            <div class="hint">Arraste os itens para mudar a ordem. Use títulos para agrupar serviços em seções.</div>
+          </div>
+          <div class="f">
+            <label>Equipe Técnica Mínima Exigida</label>
+            <div class="eq-grid" id="eq-tecnica-grid"></div>
+            <div class="eq-add">
+              <input type="text" id="eq-tecnica-extra" placeholder="Adicionar outro profissional...">
+              <button type="button" class="btn btn-o" onclick="adicionarEquipeTecnicaExtra()">Adicionar</button>
+            </div>
+            <textarea id="f-EQUIPE_TECNICA" class="svc-hidden"></textarea>
+            <div class="hint">Selecione os profissionais exigidos. O texto final será montado automaticamente para o documento.</div>
+          </div>
+          <div class="f">
+            <label>Qualificações Técnicas Exigidas</label>
+            <div class="svc-builder">
+              <div class="svc-add">
+                <textarea id="qual-tecnica-input" rows="2" placeholder="Digite uma qualificação técnica ou quantitativo de maior relevância..."></textarea>
+                <button type="button" class="btn btn-p" onclick="adicionarQualificacaoTecnica()">Adicionar</button>
+              </div>
+              <div class="svc-list" id="qual-tecnica-list"></div>
+            </div>
+            <textarea id="f-QUANT_A" class="svc-hidden"></textarea>
+            <textarea id="f-QUANT_B" class="svc-hidden"></textarea>
+            <textarea id="f-QUANT_C" class="svc-hidden"></textarea>
+            <textarea id="f-QUANT_D" class="svc-hidden"></textarea>
+            <textarea id="f-QUANT_E" class="svc-hidden"></textarea>
+            <div class="hint">Arraste os itens para mudar a ordem. Eles preenchem os itens a), b), c), d) e e) do template.</div>
+          </div>
+        </div>
+        <div class="sdiv"><span>Disciplinas desta obra — selecione as que fazem parte do escopo</span></div>
+        <div id="disc-selector" class="disc-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ETAPAS DISCIPLINAS (dinâmico) -->
+  <div id="fps-disciplinas"></div>
+
+  <!-- ETAPA REVISÃO -->
+  <div class="fp" id="fp-rev">
+    <div class="card">
+      <div class="ch"><div class="ch-left"><span class="ch-tag">REVISAR</span><h2>Revisão Final</h2></div></div>
+      <div class="cb">
+        <div id="review-content"></div>
+        <div style="margin-top:20px">
+          <button class="btn btn-s btn-lg btn-full" onclick="salvarEGerar()">
+            📄 Salvar e Gerar Roteiro Técnico (.docx)
+          </button>
+          <div id="status" class="status"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wnav">
+    <button class="btn btn-o" id="btn-prev" onclick="navStep(-1)" disabled>← Anterior</button>
+    <div style="display:flex;gap:7px">
+      <label class="btn btn-o" style="cursor:pointer">
+        📂 Carregar rascunho
+        <input type="file" accept=".json" style="display:none" onchange="carregarRascunho(this)">
+      </label>
+      <button class="btn btn-o" onclick="salvarRascunho()">💾 Baixar rascunho</button>
+    </div>
+    <button class="btn btn-p" id="btn-next" onclick="navStep(1)">Próximo →</button>
+  </div>
+</div>
+
+<!-- ═══════ BANCO ═══════ -->
+<div class="page" id="page-banco">
+  <div class="card">
+    <div class="ch"><div class="ch-left"><span>🗄️</span><h2>Banco de Dados</h2></div>
+      <button class="btn btn-o" onclick="abrirPainelAdmin()">⚙️ Trocar arquivos</button>
+    </div>
+    <div class="cb">
+      <div class="tip">
+        📌 Os arquivos são publicados junto com a GitHub Page. Para atualizar dados, edite o CSV/Excel ou o TEMPLATE.docx no repositório, regenere o cadastro e clique em <strong>"Recarregar arquivos"</strong> acima.
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="bs-tag" id="bt-cad">⚠️ BANCO_CADASTROS — não carregado</span>
+        <span class="bs-tag" id="bt-esp">⚠️ BANCO_ESPECIFICACOES — não carregado</span>
+        <span class="bs-tag" id="bt-tpl">⚠️ TEMPLATE.docx — não carregado</span>
+      </div>
+      <div class="atab-bar">
+        <div class="atab active" id="atab-unidades" onclick="showBancoTab('unidades')">🏛️ Unidades</div>
+        <div class="atab" id="atab-responsaveis" onclick="showBancoTab('responsaveis')">👤 Responsáveis</div>
+        <div class="atab" id="atab-servicos" onclick="showBancoTab('servicos')">🔧 Serviços</div>
+        <div class="atab" id="atab-disciplinas" onclick="showBancoTab('disciplinas')">📐 Disciplinas</div>
+      </div>
+      <div class="acont active" id="ac-unidades">
+        <table class="stbl"><thead><tr><th>Sigla</th><th>Nome</th><th>Endereço</th><th>CNPJ</th></tr></thead>
+        <tbody id="tb-unidades"></tbody></table>
+      </div>
+      <div class="acont" id="ac-responsaveis">
+        <table class="stbl"><thead><tr><th>Nome</th><th>Iniciais</th><th>Cargo</th><th>CREA/CAU</th><th>Papel</th></tr></thead>
+        <tbody id="tb-responsaveis"></tbody></table>
+      </div>
+      <div class="acont" id="ac-servicos">
+        <table class="stbl"><thead><tr><th>Nome do Serviço</th><th>Descrição Resumida</th></tr></thead>
+        <tbody id="tb-servicos"></tbody></table>
+      </div>
+      <div class="acont" id="ac-disciplinas">
+        <table class="stbl"><thead><tr><th>Grupo</th><th>Serviço</th><th>Chave</th><th>Normas</th></tr></thead>
+        <tbody id="tb-disciplinas"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="hidden" id="editing-id">
+
+<script>
+// ─── CONFIG DISCIPLINAS ────────────────────────────────────────────────────────
+var DISC_CONFIG = [
+  {id:"civil", nome:"Obras Civis", ico:"🏗️", cor:"#2D6A4F"},
+  {id:"eletrica", nome:"Instalações Elétricas", ico:"⚡", cor:"#7B3F00"},
+  {id:"hidrossanitaria", nome:"Instalações Hidrossanitárias", ico:"🚿", cor:"#1A535C"},
+  {id:"ppci", nome:"PPCI — Prev. e Combate a Incêndio", ico:"🔥", cor:"#9B2C2C"},
+  {id:"climatizacao", nome:"Climatização, Mecânica e Elevadores", ico:"❄️", cor:"#1A365D"},
+  {id:"dados", nome:"Dados, Voz e CFTV", ico:"🔌", cor:"#553C9A"},
+  {id:"paisagismo", nome:"Paisagismo e Obras Externas", ico:"🌿", cor:"#276749"},
+];
+
+// ─── ARQUIVOS ─────────────────────────────────────────────────────────────────
+var ARQUIVOS = {
+  cad: 'cadastros.xlsx',
+  esp: 'BANCO_ESPECIFICACOES.xlsx',
+  tpl: 'template.docx'
+};
+var ADMIN_PASSWORD = 'admin';
+
+// Dados mínimos embutidos para a GitHub Page continuar preenchendo
+// unidades e responsáveis mesmo se o XLSX ou a biblioteca externa falhar.
+var CADASTROS_FALLBACK = {
+  "unidades": [
+    {
+      "SIGLA": "SENAI-RJ-0001",
+      "NOME_COMPLETO": "Sede da FIRJAN SENAI",
+      "ENDERECO": "Avenida Graça Aranha, 1 - 5º andar - sala 502 - Centro - CEP: 20.030-002",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0001-52",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "02.214.857",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0002",
+      "NOME_COMPLETO": "Senai Niterói (Barreto)",
+      "ENDERECO": "Rua Galvão, 27 - Barreto - CEP: 24.110-260",
+      "MUNICIPIO": "Niterói",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0002-33",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "106.015-1",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0003",
+      "NOME_COMPLETO": "Senai Nova Iguaçu",
+      "ENDERECO": "Rua Gerson Chernicharo, 1319 - Bairro da Luz - CEP: 26.263-150",
+      "MUNICIPIO": "Nova Iguaçu",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0003-14",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "03496-7",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0004",
+      "NOME_COMPLETO": "Senai Bingen",
+      "ENDERECO": "Rua Bingen, 130 - Bingen - CEP: 25.660-003",
+      "MUNICIPIO": "Petrópolis",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0004-03",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "68520",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0006",
+      "NOME_COMPLETO": "Senai Barra Mansa",
+      "ENDERECO": "Rua Senhor do Bonfim, 130 - Saudade - CEP: 27.313-210",
+      "MUNICIPIO": "Barra Mansa",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0006-67",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "522401",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0007",
+      "NOME_COMPLETO": "Senai Maracanã",
+      "ENDERECO": "Rua São Francisco Xavier, 417 - Maracanã - CEP: 20.550-010",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0007-48",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.211.509-3",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0008",
+      "NOME_COMPLETO": "Tijuca",
+      "ENDERECO": "Rua Morais e Silva, 53 -  Maracanã - CEP: 20.271-030",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0008-29",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.211.511-5",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0009",
+      "NOME_COMPLETO": "IST Automação e Simulação",
+      "ENDERECO": "Praça Natividade Saldanha, 19 - Benfica - CEP: 20.911-210",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0009-00",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.204.686-5",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0010",
+      "NOME_COMPLETO": "Senai Santa Cruz",
+      "ENDERECO": "Rua Felipe Cardoso, 713 - Santa Cruz - CEP: 23.510-006",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0010-43",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.210.680-9",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0011",
+      "NOME_COMPLETO": "Senai Campos",
+      "ENDERECO": "Rua Bruno de Azevedo, 37 - Centro - CEP: 28.035-045",
+      "MUNICIPIO": "Campos dos Goytacazes",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0011-24",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "53275",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0012",
+      "NOME_COMPLETO": "Senai Itaperuna",
+      "ENDERECO": "Avenida Deputado José de Cerqueira Garcia, 895 - Pres. Costa e Silva - CEP: 28.300-000",
+      "MUNICIPIO": "Itaperuna",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0012-05",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "7756-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0013",
+      "NOME_COMPLETO": "Senai Nova Friburgo",
+      "ENDERECO": "Rua Prefeito Eugenio Muller, 220 - Centro - CEP: 28.625-270",
+      "MUNICIPIO": "Nova Friburgo",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0013-96",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1023605467-7",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0014",
+      "NOME_COMPLETO": "Senai Duque de Caxias",
+      "ENDERECO": "Travessa Arthur Goulart, 124 - Centro - CEP: 25.070-235",
+      "MUNICIPIO": "Duque de Caxias",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0014-77",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "7707763",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0015",
+      "NOME_COMPLETO": "Senai Resende",
+      "ENDERECO": "Rua Sarquis José Sarquis, 156 - Jardim Jalisco - CEP: 27.510-100",
+      "MUNICIPIO": "Resende",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0015-58",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "03.8093.0165",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0016",
+      "NOME_COMPLETO": "IST Solda",
+      "ENDERECO": "Rua São Francisco Xavier, 601- Maracanã - CEP: 20.550-011",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0016-39",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.096.588-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0017",
+      "NOME_COMPLETO": "Senai Macaé",
+      "ENDERECO": "Alameda Etelvino Gomes, 155 - Parte - Macaé - CEP: 27.937-150",
+      "MUNICIPIO": "Macaé",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0017-10",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "016.536-2",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0018",
+      "NOME_COMPLETO": "Senai Volta Redonda",
+      "ENDERECO": "Avenida Lucas Evangelista de Oliveira Franco, 595 - Parte - Aterrado - CEP: 27.215-630",
+      "MUNICIPIO": "Volta Redonda",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0018-09",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "038.581.00-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0019",
+      "NOME_COMPLETO": "Senai Vicente de Carvalho",
+      "ENDERECO": "Avenida Pastor Martin Luther King Jr., 6475 - Parte - Vicente de Carvalho - CEP: 21.371-310",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0019-81",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.282.515-5",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0020",
+      "NOME_COMPLETO": "Unidade Administrativa",
+      "ENDERECO": "Rua Mariz e Barros, 678 - Maracanã - CEP: 20.270-004",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0020-15",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "96.605-3",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0022",
+      "NOME_COMPLETO": "Senai Laranjeiras",
+      "ENDERECO": "Rua Esteves Junior, 47 - Laranjeiras - CEP: 22.231-160",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0022-87",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "331.124-4",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0026",
+      "NOME_COMPLETO": "Senai Barra  do Piraí",
+      "ENDERECO": "Rua Alan Cardeck, s/n - Muqueca - CEP: 27.140-240",
+      "MUNICIPIO": "Barra do Piraí",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0026-00",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "20497-01",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0027",
+      "NOME_COMPLETO": "Senai Valença",
+      "ENDERECO": "Rua Osires de Paiva Souza, 1020 - Benfica - CEP: 27.600-000",
+      "MUNICIPIO": "Valença",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0027-91",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "003.523.00-4",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0029",
+      "NOME_COMPLETO": "Senai Três Rios",
+      "ENDERECO": "Rua Isaltino  Silveira, 90 - Cantagalo - CEP: 25.804-250",
+      "MUNICIPIO": "Três Rios",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0029-53",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0101014950",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0030",
+      "NOME_COMPLETO": "IST SENAI Ambiental",
+      "ENDERECO": "Rua Morais e Silva, 53 - Maracanã - CEP: 20.271-030",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0030-97",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.211.511-5",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0031",
+      "NOME_COMPLETO": "Senai São Gonçalo",
+      "ENDERECO": "Rua Dr. Nilo Peçanha, 134 - Parte - Centro - CEP: 24.445-360",
+      "MUNICIPIO": "São Gonçalo",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0031-78",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "87540-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0032",
+      "NOME_COMPLETO": "Faculdade SENAI Rio",
+      "ENDERECO": "Rua Mariz e Barros, 678 - Bloco 2 - 2º andar - Tijuca - CEP: 20.270-002",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0032-59",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.347.472-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0033",
+      "NOME_COMPLETO": "Senai Niterói (Centro)",
+      "ENDERECO": "Rua Visconde de Uruguai, 535 - 6º andar - Parte - Centro - CEP: 24.030-073",
+      "MUNICIPIO": "Niterói",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0033-30",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "122.710-7",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0036",
+      "NOME_COMPLETO": "Senai Jacarepaguá",
+      "ENDERECO": "Avenida Geremário Dantas, 940 - Pechincha - CEP: 22.743-010",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0036-82",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.365.496-6",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0038",
+      "NOME_COMPLETO": "Senai Senador Alencar",
+      "ENDERECO": "Rua Senador Alencar, 260 - Parte - Vasco da Gama - CEP: 20.921-430",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0038-44",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "387.403-6",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0040",
+      "NOME_COMPLETO": "Senai Pádua",
+      "ENDERECO": "Avenida João Jazbick, 740 - Aeroporto - CEP: 28.470-000",
+      "MUNICIPIO": "Santo Antônio de Pádua",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0040-69",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "2003006480",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0042",
+      "NOME_COMPLETO": "Senai Moda Petrópolis",
+      "ENDERECO": "Rua 24 de Maio, 2 - Andar 3 - Centro - CEP: 25.640-550",
+      "MUNICIPIO": "Petrópolis",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0042-20",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0043",
+      "NOME_COMPLETO": "Senai Macaé - Botafogo",
+      "ENDERECO": "Estrada Virgem Santa - Loteamento Botafogo, 657 - Qd 2, Lote 17 a 30 - Botafogo - CEP: 27.946-830",
+      "MUNICIPIO": "Macaé",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0043-01",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "021.078-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0044",
+      "NOME_COMPLETO": "Senai de Segurança do Trabalho",
+      "ENDERECO": "Rua Mariz e Barros, 678 - Bloco 1 - 5º andar - Maracanã - CEP: 20.270-903",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0044-92",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.452.585-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0045",
+      "NOME_COMPLETO": "Senai Angra dos Reis",
+      "ENDERECO": "Rua Alagoas, s/n - Parque Residencial Village - Jacuecanga - Village - CEP: 23.914.180",
+      "MUNICIPIO": "Angra dos Reis",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0045-73",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "25903",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0047",
+      "NOME_COMPLETO": "Senai Itaguaí",
+      "ENDERECO": "Rodovia Rio-Santos - Zona Industrial - LT J1 - Quadra 97 - Distrito do Município de Itaguaí - CEP: 23.812-101",
+      "MUNICIPIO": "Itaguaí",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0047-35",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "22264",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0048",
+      "NOME_COMPLETO": "Senai Botafogo",
+      "ENDERECO": "Rua Guilhermina Guinle, 211 - 207 - Botafogo - CEP: 22.270-060",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0048-16",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1123201-9",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0050",
+      "NOME_COMPLETO": "Senai Três Rios - Entidade Gestora Técnica",
+      "ENDERECO": "Avenida Vereador Mario de Castro Reis, 25 - Centro - Cep: 25.804-970",
+      "MUNICIPIO": "Três Rios",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0050-30",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0101017588",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0051",
+      "NOME_COMPLETO": "Senai Rodrigues Alves",
+      "ENDERECO": "Avenida Rodrigues Alves, 833 e 835 - Santo Cristo - CEP: 20.220-361",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0051-11",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0.545.430-1",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0053",
+      "NOME_COMPLETO": "Senai Friburgo Conselheiro Paulino",
+      "ENDERECO": "Avenida Governador Roberto Silveira, 1960 - Duas Pedras - CEP: 28.635-000",
+      "MUNICIPIO": "Nova Friburgo",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0053-83",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1023622286-3",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0054",
+      "NOME_COMPLETO": "Senai Campos Padaria Escola",
+      "ENDERECO": "Rua Bruno de Azevedo, 37 - Pq. Maria Queiroz - CEP: 28.035-045",
+      "MUNICIPIO": "Campos dos Goytacazes",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0054-64",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "109.356",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0055",
+      "NOME_COMPLETO": "Senai Volta Redonda Aero Clube",
+      "ENDERECO": "Rua Pedro Lima Mendes, 490 - Aero Clube - CEP: 27.283-160",
+      "MUNICIPIO": "Volta Redonda",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0055-45",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "038.581.02-7",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0057",
+      "NOME_COMPLETO": "Senai Pólo Capital Washington Luiz",
+      "ENDERECO": "Rodovia Washington Luiz, 4370 - Galpão E - Vila São Sebastião - CEP: 25.055-009",
+      "MUNICIPIO": "Duque de Caxias",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0057-07",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "99141807",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0060",
+      "NOME_COMPLETO": "Espaço Senai Moda de Nova Friburgo",
+      "ENDERECO": "Rua Julius Arp, 85 - Centro - CEP: 28.623-000",
+      "MUNICIPIO": "Nova Friburgo",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0060-02",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1023624238-2",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0061",
+      "NOME_COMPLETO": "Senai Três Rios",
+      "ENDERECO": "Avenida Vereador Mário de Catro Reis, 25 - Centro - CEP:25.804-970",
+      "MUNICIPIO": "Três Rios",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0061-93",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "0101019928",
+      "INSC_ESTADUAL": "isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0062",
+      "NOME_COMPLETO": "Senai Volta Redonda Padaria Escola",
+      "ENDERECO": "Rua Capitão Benedito Lopes Bragança, 113 - São Geraldo - CEP: 27.253-510",
+      "MUNICIPIO": "Volta Redonda",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0062-74",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "063.348.00-4",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0063",
+      "NOME_COMPLETO": "Instituto Senai de Inovação em Química Verde",
+      "ENDERECO": "Rua Morais e Silva, 53 - Bloco 9 - Andar 1 - Maracanã - CEP: 20.271-030",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0063-55",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1007880-6",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0065",
+      "NOME_COMPLETO": "ISI Inspeção e Integridade",
+      "ENDERECO": "Rua São Francisco Xavier, 601 - Bloco 1 - Sala 204 - Maracanã - CEP: 20.541-280",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0065-17",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1157679-6",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0066",
+      "NOME_COMPLETO": "ISI SVP",
+      "ENDERECO": "Praça Natividade Saldanha, 19 - Parte - Benfica - CEP: 20.911-210",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0066-06",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1235244-1",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0001",
+      "NOME_COMPLETO": "Sede da FIRJAN SESI",
+      "ENDERECO": "Avenida Graça Aranha, 1 - Lj.A deps , lj.B deps, ands. 2 deps, 4 ao 9 - Centro - CEP: 20.030-002",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0001-12",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "58.924-1",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0002",
+      "NOME_COMPLETO": "Sesi São Gonçalo",
+      "ENDERECO": "Rua Dr. Nilo Peçanha, 134 -  Alcântara - CEP: 24.445-300",
+      "MUNICIPIO": "São Gonçalo",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0002-01",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "060651",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0003",
+      "NOME_COMPLETO": "Sesi Niterói (Centro)",
+      "ENDERECO": "Rua Visconde de Uruguai, 535 - 2º ao 10º e 13º andares - Centro - CEP: 24.030-073",
+      "MUNICIPIO": "Niterói",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0003-84",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "593566",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0004",
+      "NOME_COMPLETO": "Sesi Nova Iguaçu",
+      "ENDERECO": "Rua Gerson Chernicharo, 1321- Centro - CEP: 26.263-150",
+      "MUNICIPIO": "Nova Iguaçu",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0004-65",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "032298",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0005",
+      "NOME_COMPLETO": "Sesi Petrópolis",
+      "ENDERECO": "Rua Barão do Rio Branco, 2564 - Centro - CEP: 25.680-120",
+      "MUNICIPIO": "Petrópolis",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0005-46",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "34066",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0006",
+      "NOME_COMPLETO": "Sesi Três Rios",
+      "ENDERECO": "Avenida Vereador Mário de Castro Reis, 35 - Nova Niterói - CEP: 25.804-080",
+      "MUNICIPIO": "Três Rios",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0006-27",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "0101011716",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0007",
+      "NOME_COMPLETO": "Sesi Barra do Piraí",
+      "ENDERECO": "Avenida Major Mário Moacyr Salgueiro, 1065 - Belvedere - CEP: 27.170-000",
+      "MUNICIPIO": "Barra do Piraí",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0007-08",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "26618-01",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0008",
+      "NOME_COMPLETO": "Sesi Volta Redonda",
+      "ENDERECO": "Avenida Lucas Evangelista de Oliveira Franco, 595 - Aterrado - CEP: 27.215-630",
+      "MUNICIPIO": "Volta Redonda",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0008-99",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "018.425.00-3",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0009",
+      "NOME_COMPLETO": "Sesi Barra Mansa",
+      "ENDERECO": "Avenida Dario Aragão, 2 - Centro - CEP: 27.330-020",
+      "MUNICIPIO": "Barra Mansa",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0009-70",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "522612",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0010",
+      "NOME_COMPLETO": "Sesi Cinelândia",
+      "ENDERECO": "Rua Santa Luzia, 685 - 3º, 4º, 5º e 11º andares - Centro - CEP: 20.030-041",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0010-03",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "02290839",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0012",
+      "NOME_COMPLETO": "Sesi Vicente de Carvalho",
+      "ENDERECO": "Avenida Pastor Martin Luther King Jr., 6475 - Vicente de Carvalho - CEP: 21.371-310",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0012-75",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "01919636",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0014",
+      "NOME_COMPLETO": "Sesi Macaé",
+      "ENDERECO": "Rua Alameda Etelvino Gomes, 155 - Pq. Francisco Machado - CEP: 27.937-150",
+      "MUNICIPIO": "Macaé",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0014-37",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "957",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0015",
+      "NOME_COMPLETO": "Sesi Campos",
+      "ENDERECO": "Rua Dep. Bartolomeu Lizandro, 862 - Parque Jardim Carioca - CEP: 28.030-002",
+      "MUNICIPIO": "Campos dos Goytacazes",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0015-18",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "32416",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0016",
+      "NOME_COMPLETO": "Sesi Itaperuna",
+      "ENDERECO": "Avenida Dep.José de Cerqueira Garcia, 883 - Gov. Roberto Silveira - CEP: 28.300-000",
+      "MUNICIPIO": "Itaperuna",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0016-07",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "5023-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0017",
+      "NOME_COMPLETO": "Sesi Nova Friburgo",
+      "ENDERECO": "Rua Teresópolis, 248 - Vila Amélia - CEP: 28.625-530",
+      "MUNICIPIO": "Nova Friburgo",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0017-80",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "10234028660",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0018",
+      "NOME_COMPLETO": "Sesi Laranjeiras",
+      "ENDERECO": "Rua Ipiranga, 75 - Laranjeiras - CEP: 22.231-120",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0018-60",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "00610607",
+      "INSC_ESTADUAL": "isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0019",
+      "NOME_COMPLETO": "Sesi Jacarepaguá",
+      "ENDERECO": "Avenida Geremário Dantas, 342 - Jacarepaguá - CEP: 22.735-000",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0019-41",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "01993445",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0020",
+      "NOME_COMPLETO": "Sesi Santa Cruz",
+      "ENDERECO": "Rua Felipe Cardoso, 713 - Santa Cruz - CEP: 23.510-006",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0020-85",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "00448982",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0022",
+      "NOME_COMPLETO": "Sesi Duque de Caxias",
+      "ENDERECO": "Rua Arthur Neiva, 100 - 1º e 2º andares - Centro - CEP: 25.070-235",
+      "MUNICIPIO": "Duque de Caxias",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0022-47",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "160.374",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0023",
+      "NOME_COMPLETO": "Sesi Resende",
+      "ENDERECO": "Rua Marcílio Dias, 468 - Jardim Jalisco - CEP: 27.510-080",
+      "MUNICIPIO": "Resende",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0023-28",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "280293154",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0024",
+      "NOME_COMPLETO": "Sesi Tijuca Moraes e Silva",
+      "ENDERECO": "Rua Moraes e Silva, 53 - Parte - Maracanã - CEP: 20.271-030",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0024-09",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "00968528",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0026",
+      "NOME_COMPLETO": "Sesi Cinelândia (Academia)",
+      "ENDERECO": "Rua Santa Luzia, 685 - 12º Andar - Salas 1201 a 1211 - Centro - CEP: 20.021-330",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0026-70",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "02845385",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0029",
+      "NOME_COMPLETO": "x",
+      "ENDERECO": "Estrada da Boa Vista - Lote 4, Qd. C – Itatiquara  –  CEP: 28.970-000",
+      "MUNICIPIO": "Araruama",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0029-13",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0030",
+      "NOME_COMPLETO": "IST SESI Ambiental",
+      "ENDERECO": "Rua Moraes e Silva, 53 - Parte - Maracanã - CEP: 20.271-030",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0030-57",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "03149790",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0032",
+      "NOME_COMPLETO": "Sesi Maracanã",
+      "ENDERECO": "Rua São Francisco Xavier, 417 - Parte - Maracanã - CEP: 20.550-010",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0032-19",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "03379515",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0034",
+      "NOME_COMPLETO": "Sesi Bingen",
+      "ENDERECO": "Rua Bingen, 130 - Parte - Bingen - CEP: 25.660-004",
+      "MUNICIPIO": "Petrópolis",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0034-80",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "81161",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0035",
+      "NOME_COMPLETO": "Sesi Senador Alencar",
+      "ENDERECO": "Rua Senador Alencar, 260 - Vasco da Gama - CEP: 20.921-430",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0035-61",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "387.416-8",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0037",
+      "NOME_COMPLETO": "Sesi Pádua",
+      "ENDERECO": "Avenida João Jazbick, 740 - Aeroporto - CEP: 28.470-000",
+      "MUNICIPIO": "Santo Antônio de Pádua",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0037-23",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "2008220",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0039",
+      "NOME_COMPLETO": "Sesi Mariz e Barros",
+      "ENDERECO": "Rua Mariz e Barros, 678 - Bloco 2 - Bloco 3 - Andar Térreo -  1º andar - Maracanã - CEP: 20.270-004",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0039-95",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "04323327",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0040",
+      "NOME_COMPLETO": "Sesi Segurança do Trabalho",
+      "ENDERECO": "Rua Mariz e Barros,  678 - Bloco 1 -  5º andar - Maracanã - CEP: 20.270-903",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0040-29",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "04407270",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0041",
+      "NOME_COMPLETO": "Sesi Jacarepaguá (Pechincha)",
+      "ENDERECO": "Avenida Geremário Dantas, 940 - Pechincha - CEP: 22.743-010",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0041-00",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "04508149",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0044",
+      "NOME_COMPLETO": "Espaço Comunitário de Saúde Básica",
+      "ENDERECO": "Rua Saint Roman, S/N - Lote 001577366 - Q - L-0009 - Copacabana - CEP: 22.071-060",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0044-52",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "04838459",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0045",
+      "NOME_COMPLETO": "Sesi Botafogo",
+      "ENDERECO": "Rua São Clemente, 213 - Botafogo - CEP: 22.260-007",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0045-33",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "1123618-9",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0048",
+      "NOME_COMPLETO": "Sesi Friburgo Conselheiro Paulino",
+      "ENDERECO": "Avenida Governador Roberto Silveira, 1960 - Duas Pedras - CEP: 28.635-000",
+      "MUNICIPIO": "Nova Friburgo",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0048-86",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "04822019600005",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0050",
+      "NOME_COMPLETO": "Sesi Pólo Capital Washington Luiz",
+      "ENDERECO": "Rodovia Washington Luiz, 4370 - Galpão E - Vila São Sebastião - CEP: 25.055-009",
+      "MUNICIPIO": "Duque de Caxias",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0050-09",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "99142566",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0054",
+      "NOME_COMPLETO": "Escola SESI Benfica",
+      "ENDERECO": "Praça Natividade Saldanha, 19 - Bloco G - Benfica- CEP:20.911-210",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0054-24",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "1362059-8",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0056",
+      "NOME_COMPLETO": "Escola Sesi de Nova Friburgo",
+      "ENDERECO": "Rua Prefeito Eugenio Muller, 220 - Centro - CEP: 28.625-270",
+      "MUNICIPIO": "Nova Friburgo",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0056-96",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "1023629624-4",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0057",
+      "NOME_COMPLETO": "Escola Sesi Macaé",
+      "ENDERECO": "Estrada Virgem Santa - Loteamento Botafogo, 657 - Parte - Botafogo - CEP: 27.946-830",
+      "MUNICIPIO": "Macaé",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0057-77",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "36386",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-FIRJAN-CIRJ-SAUDE-0001",
+      "NOME_COMPLETO": "SESI-RJ FIRJAN CIRJ Saúde",
+      "ENDERECO": "Avenida Graça Aranha, 1 - 12º andar - Centro - CEP: 20.030-002",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "07.578.281/0001-03",
+      "TITULO": "SESI-RJ FIRJAN CIRJ SAUDE",
+      "INSC_MUNICIPAL": "0.374.411-6",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-FIRJAN-CIRJ-SAUDE-0002",
+      "NOME_COMPLETO": "SESI-RJ FIRJAN CIRJ Saúde (Filial Mariz e Barros)",
+      "ENDERECO": "Rua Mariz e Barros, 678 - 4º andar - Maracanã - CEP: 20.270.903",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "07.578.281/0002-94",
+      "TITULO": "SESI-RJ FIRJAN CIRJ SAUDE",
+      "INSC_MUNICIPAL": "0.393.821-2",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "IEL-RJ-0001",
+      "NOME_COMPLETO": "IEL-RIO DE JANEIRO",
+      "ENDERECO": "Avenida Graça Aranha, 1 - 8º andar - Centro - CEP: 20.030-002",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "09.324.352/0001-77",
+      "TITULO": "IEL-RJ",
+      "INSC_MUNICIPAL": "408.111-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "CIRJ-0001",
+      "NOME_COMPLETO": "CIRJ",
+      "ENDERECO": "Avenida Graça Aranha, 1 - 12º andar - Parte - Centro - CEP: 20.030-002",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "33.636.523/0001-88",
+      "TITULO": "CIRJ",
+      "INSC_MUNICIPAL": "0.105.863-00",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0001",
+      "NOME_COMPLETO": "Sede da FIRJAN",
+      "ENDERECO": "Avenida Graça Aranha, 1 - SBJ 2 e 10 PT - 11 ao 13 - Centro - CEP: 20.030-002",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0001-07",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "01.948.970",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0011",
+      "NOME_COMPLETO": "Representação Regional da FIRJAN Leste Fluminense (Niterói)",
+      "ENDERECO": "Rua Visconde de Uruguai, 535 - 11º e 12º andares - Centro - CEP: 24.030-078",
+      "MUNICIPIO": "Niterói",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0011-89",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "079119-4",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0012",
+      "NOME_COMPLETO": "Representação Regional de Brasília",
+      "ENDERECO": "SHN - Quadra 01 – Lote A – Bloco A – Sala 1508 – Ed. Le Quartier - CEP: 70.701-010",
+      "MUNICIPIO": "Brasília",
+      "UF": "DF",
+      "CNPJ": "42.422.212/0012-60",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "x",
+      "INSC_ESTADUAL": "x",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0014",
+      "NOME_COMPLETO": "Representação Regional FIRJAN Centro Norte Fluminense (Friburgo)",
+      "ENDERECO": "Avenida Eng. Ariosto Bento de Mello, 65 - Lj. III e IV - Centro - CEP: 28.610-100",
+      "MUNICIPIO": "Nova Friburgo",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0014-21",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "1024204816-2",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0015",
+      "NOME_COMPLETO": "Representação Regional da FIRJAN/CIRJ no Sul Fluminense",
+      "ENDERECO": "Rua 156, 220 - Laranjal - CEP: 27.255-005",
+      "MUNICIPIO": "Volta Redonda",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0015-02",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "055.003.00-1",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0016",
+      "NOME_COMPLETO": "Representação Regional FIRJAN no Norte Fluminense (Campos)",
+      "ENDERECO": "Rua Bruno de Azevedo, 37 - Jardim Maria Queiroz - CEP:  28.035-045",
+      "MUNICIPIO": "Campos dos Goytacazes",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0016-93",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "0000031396",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0017",
+      "NOME_COMPLETO": "Representação Regional da FIRJAN na Região Serrana (Petrópolis)",
+      "ENDERECO": "Avenida Dom Pedro I, 579 - Centro - CEP:  25.610-020",
+      "MUNICIPIO": "Petrópolis",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0017-74",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "60090",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0018",
+      "NOME_COMPLETO": "Representação Regional da FIRJAN na Baixada Fluminense-Área I (Nova Iguaçu)",
+      "ENDERECO": "Rua Gerson  Chernicharo, s/n - Bairro da Luz - CEP: 26.263-150",
+      "MUNICIPIO": "Nova Iguaçu",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0018-55",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "00082353",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0019",
+      "NOME_COMPLETO": "Representação Regional da FIRJAN na Baixada Fluminense Área II (Duque de Caxias)",
+      "ENDERECO": "Rua Arthur Neiva, 100 - 25 de Agosto - Duque de Caxias - CEP: 25.070-010",
+      "MUNICIPIO": "Duque de Caxias",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0019-36",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "7741077",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0020",
+      "NOME_COMPLETO": "Representação Regional da FIRJAN no Noroeste Fluminense (Itaperuna)",
+      "ENDERECO": "Avenida Porto Alegre, 810 - Cidade Nova, CEP 28300-000",
+      "MUNICIPIO": "Itaperuna",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0020-70",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "5882-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0021",
+      "NOME_COMPLETO": "Representação Regional Centro Sul Fluminense (Três Rios)",
+      "ENDERECO": "Rua Isaltino Silveira, 90 - Cantagalo - Centro - CEP: 25.802-315",
+      "MUNICIPIO": "Três Rios",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0021-50",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "01019470",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "FIRJAN-0022",
+      "NOME_COMPLETO": "Casa Firjan",
+      "ENDERECO": "Rua São Clemente, 213 - Parte - Botafogo - CEP: 22.260-007",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "42.422.212/0022-31",
+      "TITULO": "FIRJAN",
+      "INSC_MUNICIPAL": "1143879-2",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0042",
+      "NOME_COMPLETO": "Sesi Cinelândia (Lojas A e B)",
+      "ENDERECO": "Av. Calógeras, 15 - Lojas A e B - Centro - CEP: 20.030-070",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0042-90",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "0440788-1",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0058",
+      "NOME_COMPLETO": "Escola SESI Frimoda",
+      "ENDERECO": "Av. Conselheiro Julius Arp, 85 - Parte - Centro - CEP: 28.623-000",
+      "MUNICIPIO": "Nova Friburgo",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0058-58",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "1023677023-1",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0059",
+      "NOME_COMPLETO": "Escola SESI Volta Redonda",
+      "ENDERECO": "Rua Pedro Lima Mendes, 490 - Parte - Aero Clube - CEP: 27.283-160",
+      "MUNICIPIO": "Volta Redonda",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0059-39",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "038581027",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0068",
+      "NOME_COMPLETO": "IST Engenharia e Design Industrial",
+      "ENDERECO": "Rua São Francisco Xavier, nº 601 - parte - Maracanã. CEP: 20.550-011",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0068-60",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1517324-6",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0067",
+      "NOME_COMPLETO": "SENAI São Pedro da Aldeia",
+      "ENDERECO": "Rod RJ 140 - Lt 2 - Quadra A - Nova São Pedro. CEP:28.941-030",
+      "MUNICIPIO": "São Pedro da Aldeia",
+      "UF": "RJ",
+      "CNPJ": "03.848.688/0067-89",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0061",
+      "NOME_COMPLETO": "SESI São Pedro da Aldeia",
+      "ENDERECO": "Rod RJ 140 - Lt 2 - Quadra A - Parte - Nova São Pedro - CEP:28.941-030",
+      "MUNICIPIO": "São Pedro da Aldeia",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0061-53",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "7182",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SESI-RJ-0060",
+      "NOME_COMPLETO": "Escola SESI Resende",
+      "ENDERECO": "Rua Sarquis José Sarquis, 156 - Bl 3 parte - Jardim Jalisco",
+      "MUNICIPIO": "Resende",
+      "UF": "RJ",
+      "CNPJ": "03.851.171/0060-72",
+      "TITULO": "SESI-RJ",
+      "INSC_MUNICIPAL": "27233",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0071",
+      "NOME_COMPLETO": "Instituto Senai de Inovação em Biossintéticos e Fibras",
+      "ENDERECO": "Rua Fernando de Souza Barros 120 - Ilha do Fundão - Cidade Universitária - CEP:21.941-857",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "",
+      "CNPJ": "03.848.688/0071-65",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0070",
+      "NOME_COMPLETO": "Senai Benfica",
+      "ENDERECO": "Praça Natividade Saldanha, 19 - Benfica/RJ. CEP: 20.911-210",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "",
+      "CNPJ": "03.848.688/0070-84",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1544530-0",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0072",
+      "NOME_COMPLETO": "Centro de Referência em TI - Firjan SENAI Sapucaí",
+      "ENDERECO": "Rua Marques de Sapucaí, 200 - Salas 1103 e 1104 - Cidade Nova/RJ. CEP: 20.210-912",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "",
+      "CNPJ": "03.848.688/0072-46",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1575892-9",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "SENAI-RJ-0069",
+      "NOME_COMPLETO": "Senai Vila Isabel",
+      "ENDERECO": "Rua São Francisco Xavier, 601 - Maracanã - CEP: 20.550-011",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "",
+      "CNPJ": "03.848.688/0069-40",
+      "TITULO": "SENAI-RJ",
+      "INSC_MUNICIPAL": "1533122-4",
+      "INSC_ESTADUAL": "Isento",
+      "ANEXOS": "1"
+    },
+    {
+      "SIGLA": "CEAJD-0001",
+      "NOME_COMPLETO": "Condomínio do Ed. Centro Empresarial Arthur João Donato",
+      "ENDERECO": "Avenida Graça Aranha 1",
+      "MUNICIPIO": "Rio de Janeiro",
+      "UF": "",
+      "CNPJ": "00.652.273.0001-10",
+      "TITULO": "CEAJD",
+      "INSC_MUNICIPAL": "",
+      "INSC_ESTADUAL": "",
+      "ANEXOS": "1"
+    }
+  ],
+  "responsaveis": [
+    {
+      "NOME": "Warren dos Santos Bastos",
+      "INICIAIS": "WSB",
+      "CARGO": "GER ENGENHARIA SEGURANCA",
+      "CREA_CAU": "",
+      "PAPEL": "GERENTE"
+    },
+    {
+      "NOME": "Luis Felipe Omena Viana De Vasconcellos",
+      "INICIAIS": "LFOV",
+      "CARGO": "COORD PROJETOS ENGENHARIA",
+      "CREA_CAU": "",
+      "PAPEL": "COORDENADOR"
+    },
+    {
+      "NOME": "Marcelo Derzie De Jesus Belache",
+      "INICIAIS": "MDJB",
+      "CARGO": "COORD OBRAS E MANUTENCAO",
+      "CREA_CAU": "",
+      "PAPEL": "COORDENADOR"
+    },
+    {
+      "NOME": "Angela Maria Lourenco",
+      "INICIAIS": "AML",
+      "CARGO": "ARQUITETO(A)",
+      "CREA_CAU": "",
+      "PAPEL": "ARQUITETO"
+    },
+    {
+      "NOME": "Anna Carolina Dias Goncalves Pereira",
+      "INICIAIS": "ACDGP",
+      "CARGO": "ARQUITETO(A)",
+      "CREA_CAU": "",
+      "PAPEL": "ARQUITETO"
+    },
+    {
+      "NOME": "Balu - Maria Lúcia Americano Freire",
+      "INICIAIS": "MLAF",
+      "CARGO": "ARQUITETO(A)",
+      "CREA_CAU": "",
+      "PAPEL": "ARQUITETO"
+    },
+    {
+      "NOME": "Fabianne Manssour",
+      "INICIAIS": "FM",
+      "CARGO": "ENGENHEIRO(A) CIVIL",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    },
+    {
+      "NOME": "Gabriel Kreischer Tavares",
+      "INICIAIS": "GKT",
+      "CARGO": "ARQUITETO(A)",
+      "CREA_CAU": "",
+      "PAPEL": "ARQUITETO"
+    },
+    {
+      "NOME": "Igor Freitas Dos Santos",
+      "INICIAIS": "IFDS",
+      "CARGO": "ENGENHEIRO(A) ELETRICISTA",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    },
+    {
+      "NOME": "Jorge Lucas Mendonca Dos Santos",
+      "INICIAIS": "JLMDS",
+      "CARGO": "ENGENHEIRO(A) CIVIL",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    },
+    {
+      "NOME": "Larissa Reis Ferreira Da Silva",
+      "INICIAIS": "LRFS",
+      "CARGO": "ARQUITETO(A)",
+      "CREA_CAU": "",
+      "PAPEL": "ARQUITETO"
+    },
+    {
+      "NOME": "Luiz Henrique F Dos S Brandao Da Silva",
+      "INICIAIS": "LHFBS",
+      "CARGO": "ENGENHEIRO(A) MECANICO",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    },
+    {
+      "NOME": "Maisa Bastos da Silva Ligeiro",
+      "INICIAIS": "MBSL",
+      "CARGO": "ARQUITETO(A)",
+      "CREA_CAU": "",
+      "PAPEL": "ARQUITETO"
+    },
+    {
+      "NOME": "Natasha Attalah F Fernandes",
+      "INICIAIS": "NAFF",
+      "CARGO": "ARQUITETO(A)",
+      "CREA_CAU": "",
+      "PAPEL": "ARQUITETO"
+    },
+    {
+      "NOME": "Ana Paula Dos S Silva Ferreira Da Silva",
+      "INICIAIS": "APSSFS",
+      "CARGO": "ENGENHEIRO(A) CIVIL",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    },
+    {
+      "NOME": "Carlos Eduardo Corrêa",
+      "INICIAIS": "CEC",
+      "CARGO": "ENGENHEIRO(A) CIVIL",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    },
+    {
+      "NOME": "Daniele Haffner Marques De Oliveira Bran",
+      "INICIAIS": "DHMOB",
+      "CARGO": "ENGENHEIRO(A) CIVIL",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    },
+    {
+      "NOME": "Marcio Piza do Nascimento",
+      "INICIAIS": "MPN",
+      "CARGO": "ENGENHEIRO(A) CIVIL",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    },
+    {
+      "NOME": "Ribamar Dallaruvera",
+      "INICIAIS": "RD",
+      "CARGO": "ENGENHEIRO(A) CIVIL",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    },
+    {
+      "NOME": "Vladimir Gomes de Assis",
+      "INICIAIS": "VGA",
+      "CARGO": "ARQUITETO(A)",
+      "CREA_CAU": "",
+      "PAPEL": "ARQUITETO"
+    },
+    {
+      "NOME": "Wladimir Da Silva Costa",
+      "INICIAIS": "WDSC",
+      "CARGO": "ENGENHEIRO(A) CIVIL",
+      "CREA_CAU": "",
+      "PAPEL": "ENGENHEIRO"
+    }
+  ],
+  "modalidades": [
+    {
+      "MODALIDADE": "Empreitada Global",
+      "DESCRICAO": "Contratação por valor global para execução completa do objeto."
+    },
+    {
+      "MODALIDADE": "Empreitada por Preço Unitário",
+      "DESCRICAO": "Contratação com medição por quantidades executadas e preços unitários."
+    },
+    {
+      "MODALIDADE": "Ata de Registro de Preços",
+      "DESCRICAO": "Contratação baseada em ata vigente para fornecimento ou serviços registrados."
+    },
+    {
+      "MODALIDADE": "Empreitada Integral",
+      "DESCRICAO": "Contratação integral do empreendimento, incluindo etapas necessárias à entrega final."
+    },
+    {
+      "MODALIDADE": "Contratação por Tarefa",
+      "DESCRICAO": "Contratação para mão de obra ou pequenas tarefas por preço certo."
+    },
+    {
+      "MODALIDADE": "Contratação Integrada",
+      "DESCRICAO": "Contratação que inclui elaboração de projeto básico/executivo e execução."
+    },
+    {
+      "MODALIDADE": "Contratação Semi-integrada",
+      "DESCRICAO": "Contratação que inclui projeto executivo e execução, a partir de projeto básico."
+    },
+    {
+      "MODALIDADE": "Fornecimento e Prestação de Serviço Associado",
+      "DESCRICAO": "Contratação combinada de fornecimento de bens e serviços vinculados."
+    }
+  ],
+  "servicos": []
+};
+
+// ─── ESTADO ───────────────────────────────────────────────────────────────────
+var curStep = 1;
+var STORAGE_KEY = 'sistema-gen-roteiros-projetos';
+
+function restoreSessionProjects(){
+  try{
+    var stored = localStorage.getItem(STORAGE_KEY);
+    if(stored){
+      var data = JSON.parse(stored);
+      if(Array.isArray(data)) SESSION_PROJS = data.slice();
+    }
+  }catch(err){
+    console.warn('Não foi possível restaurar projetos salvos:', err.message);
+  }
+}
+
+var STEPS = [];
+var discsSel = [];
+var servicosPrincipais = [];
+var qualificacoesTecnicas = [];
+var equipeTecnicaSel = [];
+var DB = {cad: null, esp: null, tplBytes: null};
+var SESSION_PROJS = [];
+var EQUIPE_TECNICA_OPCOES = [
+  '1 Engenheiro Civil ou Arquiteto (RT residente)',
+  '1 Engenheiro Eletricista',
+  '1 Engenheiro Mecânico',
+  '1 Técnico de Segurança do Trabalho',
+  '1 Mestre de Obras',
+  '1 Encarregado Geral',
+  '1 Almoxarife',
+  '1 Apontador'
+];
+
+// ─── PROJETOS DA SESSÃO ───────────────────────────────────────────────────────
+var LS = {
+  projs: function(){ return SESSION_PROJS.slice(); },
+  sProjs: function(v){
+    SESSION_PROJS = Array.isArray(v) ? v.slice() : [];
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(SESSION_PROJS));
+    }catch(err){
+      console.warn('Não foi possível salvar projetos na sessão:', err.message);
+    }
+  }
+};
+
+// ─── SETUP ────────────────────────────────────────────────────────────────────
+function toggleSetupItem(id){
+  var el = document.getElementById('si-'+id);
+  el.classList.toggle('open');
+}
+
+async function autoLoadArquivos(){
+  var baseUrl = new URL('./', window.location.href);
+  var cacheBust = 'v=' + Date.now();
+  var promises = [];
+
+  function loadArquivo(tipo, nome){
+    var arquivoUrl = new URL(nome, baseUrl);
+    if(window.location.protocol !== 'file:') arquivoUrl.search = cacheBust;
+
+    function tentar(url, segundaTentativa){
+      return fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error('Arquivo não encontrado: ' + nome);
+          return response.arrayBuffer();
+        })
+        .then(data => {
+          if (tipo === 'cad') carregarCadastros(null, data);
+          else if (tipo === 'esp') carregarEspecificacoes(null, data);
+          else if (tipo === 'tpl') carregarTemplate(null, data);
+        })
+        .catch(err => {
+          if(!segundaTentativa && window.location.protocol !== 'file:' && arquivoUrl.search){
+            arquivoUrl.search = '';
+            return tentar(arquivoUrl.href, true);
+          }
+          console.warn('Erro ao carregar ' + nome + ':', err.message);
+          if (tipo === 'cad') {
+            aplicarCadastrosFallback(err.message);
+            return;
+          }
+          document.getElementById('ss-' + tipo).textContent = '❌ Falhou: ' + err.message + ' — selecione manualmente';
+        });
+    }
+
+    return tentar(arquivoUrl.href, false);
+  }
+
+  promises.push(loadArquivo('cad', ARQUIVOS.cad));
+  promises.push(loadArquivo('esp', ARQUIVOS.esp));
+  promises.push(loadArquivo('tpl', ARQUIVOS.tpl));
+
+  await Promise.allSettled(promises);
+  verificarSetupCompleto();
+  renderDiscFps();
+  renderBancoPreview();
+}
+
+
+function aplicarCadastrosFallback(motivo){
+  DB.cad = {
+    unidades: CADASTROS_FALLBACK.unidades.slice(),
+    responsaveis: CADASTROS_FALLBACK.responsaveis.slice(),
+    modalidades: CADASTROS_FALLBACK.modalidades.slice(),
+    servicos: CADASTROS_FALLBACK.servicos.slice()
+  };
+  document.getElementById('si-cad').classList.add('ok');
+  document.getElementById('ss-cad').textContent = '✅ Cadastro interno carregado: '+DB.cad.unidades.length+' unidades · '+DB.cad.responsaveis.length+' responsáveis' + (motivo ? ' (fallback: '+motivo+')' : '');
+  popularSelects();
+  verificarSetupCompleto();
+  atualizarBancoTags();
+}
+
+function carregarCadastros(file, arrayBuffer){
+  var processar = function(data){
+    try{
+      var wb = XLSX.read(data, {type:'array'});
+      var lrng = function(aba){ var ws=wb.Sheets[aba]; return ws?XLSX.utils.sheet_to_json(ws,{defval:'',range:2}):[] };
+      DB.cad = {
+        unidades: lrng('UNIDADES').filter(function(r){ return r.SIGLA && r.SIGLA!=='SIGLA'; }),
+        responsaveis: lrng('RESPONSAVEIS').filter(function(r){ return r.NOME && r.NOME!=='NOME'; }),
+        modalidades: lrng('MODALIDADES').filter(function(r){ return r.MODALIDADE && r.MODALIDADE!=='MODALIDADE'; }),
+        servicos: lrng('TIPOS_SERVICO').filter(function(r){ return r.NOME_SERVICO && r.NOME_SERVICO!=='NOME_SERVICO'; })
+      };
+      if(!DB.cad.unidades.length || !DB.cad.responsaveis.length) throw new Error('cadastros.xlsx sem unidades ou responsáveis');
+      document.getElementById('si-cad').classList.add('ok');
+      document.getElementById('ss-cad').textContent = DB.cad.unidades.length+' unidades · '+DB.cad.responsaveis.length+' responsáveis · '+DB.cad.servicos.length+' serviços';
+      popularSelects();
+      verificarSetupCompleto();
+      atualizarBancoTags();
+    }catch(err){
+      console.warn('Falha ao ler cadastros.xlsx; usando cadastro interno:', err.message);
+      aplicarCadastrosFallback(err.message);
+    }
+  };
+
+  if (arrayBuffer) {
+    processar(new Uint8Array(arrayBuffer));
+  } else {
+    var f = file || document.getElementById('fi-cad').files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(e){ processar(new Uint8Array(e.target.result)); };
+    r.readAsArrayBuffer(f);
+  }
+}
+
+function carregarEspecificacoes(file, arrayBuffer){
+  var processar = function(data){
+    try{
+      var wb = XLSX.read(data, {type:'array'});
+      DB.esp = {por_disciplina: {}};
+      var normasPadrao = {
+        civil: 'ABNT NBR 15575; ABNT NBR 16280',
+        eletrica: 'ABNT NBR 5410; NR 10',
+        hidrossanitaria: 'ABNT NBR 5626; ABNT NBR 8160',
+        ppci: 'Normas CBMERJ; ABNT NBR 9077',
+        climatizacao: 'ABNT NBR 16401',
+        dados: 'ABNT NBR 14565',
+        paisagismo: 'ABNT NBR 16246'
+      };
+      wb.SheetNames.filter(function(n){ return n!=='INDICE'; }).forEach(function(sheetName){
+        var rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {defval:'', range:2});
+        var valid = rows.filter(function(r){ return r.CHAVE && r.CHAVE!=='CHAVE'; });
+        if(!valid.length) return;
+        var did = valid[0].CHAVE.split('|')[0];
+        valid.forEach(function(r){
+          if(!String(r.NORMAS_ABNT||'').trim()) r.NORMAS_ABNT = normasPadrao[did] || 'Normas técnicas aplicáveis a confirmar';
+        });
+        if(did) DB.esp.por_disciplina[did] = valid;
+      });
+      var total = Object.values(DB.esp.por_disciplina).reduce(function(a,v){ return a+v.length; }, 0);
+      document.getElementById('si-esp').classList.add('ok');
+      document.getElementById('ss-esp').textContent = Object.keys(DB.esp.por_disciplina).length+' disciplinas · '+total+' serviços';
+      verificarSetupCompleto();
+      atualizarBancoTags();
+    }catch(err){
+      document.getElementById('ss-esp').textContent = '❌ Erro: '+err.message;
+    }
+  };
+
+  if (arrayBuffer) {
+    processar(new Uint8Array(arrayBuffer));
+  } else {
+    var f = file || document.getElementById('fi-esp').files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(e){ processar(new Uint8Array(e.target.result)); };
+    r.readAsArrayBuffer(f);
+  }
+}
+
+function carregarTemplate(file, arrayBuffer){
+  var processar = function(data){
+    DB.tplBytes = data;
+    document.getElementById('si-tpl').classList.add('ok');
+    document.getElementById('ss-tpl').textContent = '✅ Template carregado ('+Math.round(data.byteLength/1024)+' KB)';
+    verificarSetupCompleto();
+    atualizarBancoTags();
+  };
+
+  if (arrayBuffer) {
+    processar(new Uint8Array(arrayBuffer));
+  } else {
+    var f = file || document.getElementById('fi-tpl').files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(e){ processar(new Uint8Array(e.target.result)); };
+    r.readAsArrayBuffer(f);
+  }
+}
+
+function verificarSetupCompleto(){
+  var ok = DB.cad && DB.esp && DB.tplBytes;
+  if(ok){
+    document.getElementById('setup-footer-msg').textContent = '✅ Arquivos carregados. O sistema já está pronto para uso.';
+    document.getElementById('setup-footer-msg').style.color = '#276749';
+  } else {
+    var falt = [];
+    if(!DB.cad) falt.push('Cadastros');
+    if(!DB.esp) falt.push('Especificações');
+    if(!DB.tplBytes) falt.push('Template');
+    document.getElementById('setup-footer-msg').textContent = 'Faltam: '+falt.join(', ');
+    document.getElementById('setup-footer-msg').style.color = '#718096';
+  }
+}
+
+function fecharPainelAdmin(){
+  document.getElementById('setupOverlay').classList.add('hidden');
+  renderDiscFps();
+  renderBancoPreview();
+  updatePjBadge();
+}
+
+function abrirPainelAdmin(){
+  var senha = prompt('Senha de administrador:');
+  if(senha === null) return;
+  if(senha !== ADMIN_PASSWORD){
+    alert('Acesso restrito a administradores.');
+    return;
+  }
+  document.getElementById('setupOverlay').classList.remove('hidden');
+}
+
+// ─── NAVEGAÇÃO ─────────────────────────────────────────────────────────────────
+function showPage(p){
+  document.querySelectorAll('.page').forEach(function(e){ e.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(e){ e.classList.remove('active'); });
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('tab-'+p).classList.add('active');
+  if(p==='projetos') renderProjetos();
+  updatePjBadge();
+}
+function showBancoTab(t){
+  document.querySelectorAll('.atab').forEach(function(e){ e.classList.remove('active'); });
+  document.querySelectorAll('.acont').forEach(function(e){ e.classList.remove('active'); });
+  document.getElementById('atab-'+t).classList.add('active');
+  document.getElementById('ac-'+t).classList.add('active');
+}
+
+// ─── WIZARD ────────────────────────────────────────────────────────────────────
+function buildSteps(){
+  STEPS = [
+    {n:1, ico:'🏛️', lbl:'Identificação', fp:'fp-1'},
+    {n:2, ico:'✍️', lbl:'Escopo', fp:'fp-2'},
+  ];
+  discsSel.forEach(function(did, i){
+    var dc = DISC_CONFIG.find(function(d){ return d.id===did; });
+    if(dc) STEPS.push({n:3+i, ico:dc.ico, lbl:dc.nome.split(' ')[0], fp:'fp-disc-'+did, discId:did});
+  });
+  STEPS.push({n:STEPS.length+1, ico:'✅', lbl:'Revisar', fp:'fp-rev'});
+}
+function buildWizardUI(){
+  buildSteps();
+  document.getElementById('wsteps').innerHTML = STEPS.map(function(s){
+    return '<div class="wstep" id="ws-'+s.n+'" onclick="goStep('+s.n+')">'
+      +'<span class="wstep-ico">'+s.ico+'</span>'+s.lbl+'</div>';
+  }).join('');
+  updateWizUI();
+}
+
+function updateWizUI(){
+  STEPS.forEach(function(s){
+    var el = document.getElementById('ws-'+s.n);
+    if(!el) return;
+    el.classList.remove('active','done','delegated');
+    if(s.n===curStep) el.classList.add('active');
+    else if(s.n<curStep) el.classList.add('done');
+    if(s.discId){
+      var chk = document.getElementById('del-chk-'+s.discId);
+      if(chk && chk.checked) el.classList.add('delegated');
+    }
+  });
+  document.querySelectorAll('.fp').forEach(function(p){ p.classList.remove('active'); });
+  var step = STEPS[curStep-1];
+  if(step){ var fp=document.getElementById(step.fp); if(fp) fp.classList.add('active'); }
+  document.getElementById('btn-prev').disabled = (curStep===1);
+  document.getElementById('btn-next').textContent = curStep===STEPS.length ? '✅ Gerar' : 'Próximo →';
+  if(curStep===STEPS.length) buildReview();
+  setAutoDate();
+}
+
+function navStep(d){
+  if(d>0 && curStep===STEPS.length){ salvarEGerar(); return; }
+  var n = curStep+d;
+  if(n<1||n>STEPS.length) return;
+  curStep=n; updateWizUI();
+}
+function goStep(n){ curStep=n; updateWizUI(); }
+
+function setAutoDate(){
+  var t=new Date();
+  var f=String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear();
+  var el=document.getElementById('f-DATA'); if(el&&!el._locked) el.value=f;
+  var er=document.getElementById('f-REVISAO'); if(er&&!er._locked) er.value='Rev. 00';
+}
+
+// ─── DISC SELECTOR ─────────────────────────────────────────────────────────────
+function renderDiscSelector(){
+  var sel = discsSel;
+  document.getElementById('disc-selector').innerHTML = DISC_CONFIG.map(function(d){
+    var on = sel.indexOf(d.id) > -1;
+    return '<label class="disc-item'+(on?' on':'')+'" style="'+(on?'border-color:'+d.cor+';background:'+d.cor+'18':'')+'" onclick="toggleDisc(\''+d.id+'\',this)">'
+      +'<input type="checkbox" id="disc-chk-'+d.id+'" '+(on?'checked':'')+' style="accent-color:'+d.cor+'" onclick="event.stopPropagation()">'
+      +'<span class="disc-item-ico">'+d.ico+'</span>'
+      +'<span class="disc-item-nm">'+d.nome+'</span>'
+      +'</label>';
+  }).join('');
+}
+
+function toggleDisc(did){
+  var idx = discsSel.indexOf(did);
+  if(idx > -1) discsSel.splice(idx,1);
+  else discsSel.push(did);
+  renderDiscSelector();
+  renderDiscFps();
+  buildWizardUI();
+}
+
+function htmlEsc(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function serviceElId(prefix, chave){
+  return prefix+'-'+String(chave||'').replace(/[^a-zA-Z0-9_-]/g,'_');
+}
+
+// ─── ETAPAS DAS DISCIPLINAS ────────────────────────────────────────────────────
+function renderDiscFps(){
+  var container = document.getElementById('fps-disciplinas');
+  container.innerHTML = '';
+  discsSel.forEach(function(did){
+    var dc = DISC_CONFIG.find(function(d){ return d.id===did; });
+    if(!dc) return;
+    var servicos = (DB.esp && DB.esp.por_disciplina[did]) ? DB.esp.por_disciplina[did] : [];
+    var fp = document.createElement('div');
+    fp.className = 'fp';
+    fp.id = 'fp-disc-'+did;
+    var srvHtml = '';
+    if(servicos.length){
+      srvHtml = '<div class="srv-toolbar">'
+        +'<a onclick="selAllDisc(\''+did+'\',true)">✓ Selecionar todos</a>'
+        +'<span style="color:#a0aec0;margin:0 4px">|</span>'
+        +'<a onclick="selAllDisc(\''+did+'\',false)">✗ Desmarcar</a>'
+        +'<span class="srv-count"><span id="sc-'+did+'">0</span> selecionado(s)</span>'
+        +'</div>'
+        +'<div class="srv-list" id="sl-'+did+'">';
+      var grupos = {};
+      servicos.forEach(function(s){
+        var tipo = (s.TIPO_SERVICO || s.GRUPO_SERVICO || s.GRUPO || 'Outros serviços').trim();
+        if(!grupos[tipo]) grupos[tipo] = [];
+        grupos[tipo].push(s);
+      });
+      Object.keys(grupos).sort().forEach(function(tipo, gi){
+        var itens = grupos[tipo];
+        var gid = 'sg-'+did+'-'+gi;
+        srvHtml += '<div class="srv-group" id="'+gid+'">'
+          +'<div class="srv-group-hdr" onclick="toggleSrvGroup(\''+gid+'\')">'
+          +'<span class="srv-group-caret">▶</span>'
+          +'<span class="srv-group-title">'+htmlEsc(tipo)+'</span>'
+          +'<span class="srv-group-meta"><span id="'+gid+'-sel">0</span>/'+itens.length+' selecionado(s)</span>'
+          +'</div><div class="srv-group-body">';
+        itens.forEach(function(s){
+          var rowId = serviceElId('srw', s.CHAVE);
+          var chkId = serviceElId('schk', s.CHAVE);
+          var dtlId = serviceElId('sdtl', s.CHAVE);
+          srvHtml += '<div class="srw" id="'+rowId+'" data-chave="'+htmlEsc(s.CHAVE)+'" data-group="'+gid+'" onclick="toggleSrv(\''+s.CHAVE+'\',\''+did+'\')">'
+            +'<div class="schk" id="'+chkId+'"></div>'
+            +'<div style="flex:1">'
+            +'<div class="snm">'+htmlEsc(s.NOME_SERVICO)+'</div>'
+            +'<div class="snormas">'+htmlEsc(s.NORMAS_ABNT||'')+'</div>'
+            +'</div>'
+            +'<span class="sexp" onclick="event.stopPropagation();toggleDtl(\''+s.CHAVE+'\',this)">Ver texto</span>'
+            +'</div>'
+            +'<div class="sdtl" id="'+dtlId+'">'+htmlEsc(s.TEXTO_TECNICO||'Sem texto técnico cadastrado.')+'</div>';
+        });
+        srvHtml += '</div></div>';
+      });
+      srvHtml += '</div>';
+    } else {
+      srvHtml = '<div class="empty" style="padding:18px">⚠️ Importe o BANCO_ESPECIFICACOES.xlsx para ver os serviços</div>';
+    }
+    fp.innerHTML =
+      '<div class="resp-banner" style="background:'+dc.cor+'12;border-color:'+dc.cor+'40">'
+      +'<span class="rbi">'+dc.ico+'</span>'
+      +'<div><strong style="color:'+dc.cor+'">'+dc.nome+'</strong>'
+      +'<p>Selecione os serviços do escopo e informe o responsável técnico desta disciplina.</p></div>'
+      +'</div>'
+      +'<div class="del-box">'
+      +'<h3>🔄 Delegação</h3>'
+      +'<div class="del-toggle"><input type="checkbox" id="del-chk-'+did+'" onchange="toggleDelegacao(\''+did+'\')"><span>Esta disciplina será preenchida por outro profissional</span></div>'
+      +'<div class="del-flds" id="del-flds-'+did+'">'
+      +'<div class="f"><label>Nome do Delegado</label><input type="text" id="del-nome-'+did+'" placeholder="Nome completo"></div>'
+      +'<div class="f"><label>Contato / E-mail</label><input type="text" id="del-cont-'+did+'" placeholder="e-mail ou telefone"></div>'
+      +'</div></div>'
+      +'<div class="card" id="cdisc-'+did+'">'
+      +'<div class="ch" style="background:'+dc.cor+'12;border-color:'+dc.cor+'40">'
+      +'<div class="ch-left"><span style="font-size:16px">'+dc.ico+'</span><h2 style="color:'+dc.cor+'">'+dc.nome+'</h2></div>'
+      +'</div>'
+      +'<div class="cb">'
+      +'<div class="fg" style="margin-bottom:14px">'
+      +'<div class="f"><label>Responsável Técnico desta Disciplina</label>'
+      +'<select id="rt-sel-'+did+'" onchange="document.getElementById(\'rt-nm-\'+did).value=this.options[this.selectedIndex].text.split(\' (\')[0]"><option value="">— Selecione o RT —</option></select>'
+      +'<input type="hidden" id="rt-nm-'+did+'"></div>'
+      +'<div class="f"><label>Observações Gerais</label>'
+      +'<input type="text" id="obs-'+did+'" placeholder="Observações específicas desta disciplina..."></div>'
+      +'</div>'
+      + srvHtml
+      +'<div class="f" style="margin-top:14px"><label>Especificações Adicionais (texto livre)</label>'
+      +'<textarea id="txt-'+did+'" rows="3" placeholder="Especificações, materiais específicos, restrições ou condições de execução não cobertas pelos itens acima..."></textarea>'
+      +'</div></div></div>';
+    container.appendChild(fp);
+    // Popular RT select
+    if(DB.cad){
+      var rtSel = document.getElementById('rt-sel-'+did);
+      DB.cad.responsaveis.forEach(function(resp){
+        var o = document.createElement('option');
+        o.value = resp.NOME;
+        o.textContent = resp.NOME+' ('+resp.CARGO+')';
+        rtSel.appendChild(o);
+      });
+    }
+  });
+}
+
+function toggleDelegacao(did){
+  var chk = document.getElementById('del-chk-'+did);
+  var flds = document.getElementById('del-flds-'+did);
+  var card = document.getElementById('cdisc-'+did);
+  flds.classList.toggle('open', chk.checked);
+  if(card){ card.style.opacity=chk.checked?'0.4':'1'; card.style.pointerEvents=chk.checked?'none':'all'; }
+  buildWizardUI();
+}
+
+function toggleSrv(chave, did){
+  var r=document.getElementById(serviceElId('srw', chave)), k=document.getElementById(serviceElId('schk', chave));
+  r.classList.toggle('sel');
+  k.textContent = r.classList.contains('sel') ? '✓' : '';
+  var list=document.getElementById('sl-'+did);
+  var cnt=document.getElementById('sc-'+did);
+  if(list&&cnt) cnt.textContent = list.querySelectorAll('.srw.sel').length;
+  updateSrvGroupCount(r.dataset.group);
+}
+
+function toggleDtl(chave, btn){
+  var d=document.getElementById(serviceElId('sdtl', chave));
+  var b=btn || (document.getElementById(serviceElId('srw', chave))||{}).querySelector?.('.sexp');
+  d.classList.toggle('open');
+  if(b) b.textContent = d.classList.contains('open') ? 'Fechar texto' : 'Ver texto';
+}
+
+function toggleSrvGroup(gid){
+  var g=document.getElementById(gid);
+  if(!g) return;
+  g.classList.toggle('open');
+  var c=g.querySelector('.srv-group-caret');
+  if(c) c.textContent = g.classList.contains('open') ? '▼' : '▶';
+}
+
+function updateSrvGroupCount(gid){
+  if(!gid) return;
+  var g=document.getElementById(gid);
+  var el=document.getElementById(gid+'-sel');
+  if(g&&el) el.textContent = g.querySelectorAll('.srw.sel').length;
+}
+
+function selAllDisc(did, on){
+  var list=document.getElementById('sl-'+did);
+  if(!list) return;
+  list.querySelectorAll('.srw').forEach(function(r){
+    var k=r.querySelector('.schk');
+    if(on){ r.classList.add('sel'); if(k) k.textContent='✓'; }
+    else  { r.classList.remove('sel'); if(k) k.textContent=''; }
+  });
+  var cnt=document.getElementById('sc-'+did);
+  if(cnt) cnt.textContent = on ? list.querySelectorAll('.srw').length : 0;
+  list.querySelectorAll('.srv-group').forEach(function(g){ updateSrvGroupCount(g.id); });
+}
+
+function getDiscData(did){
+  var servicos = (DB.esp && DB.esp.por_disciplina[did]) ? DB.esp.por_disciplina[did] : [];
+  var sel = servicos.filter(function(s){
+    var r=document.getElementById(serviceElId('srw', s.CHAVE)); return r && r.classList.contains('sel');
+  });
+  var delegado = document.getElementById('del-chk-'+did) ? document.getElementById('del-chk-'+did).checked : false;
+  return {
+    disciplina_id: did,
+    disciplina_nome: (DISC_CONFIG.find(function(d){ return d.id===did; })||{}).nome||did,
+    responsavel_tecnico: document.getElementById('rt-nm-'+did) ? document.getElementById('rt-nm-'+did).value : '',
+    delegado: delegado,
+    delegado_nome: document.getElementById('del-nome-'+did) ? document.getElementById('del-nome-'+did).value : '',
+    delegado_contato: document.getElementById('del-cont-'+did) ? document.getElementById('del-cont-'+did).value : '',
+    observacoes: document.getElementById('obs-'+did) ? document.getElementById('obs-'+did).value : '',
+    texto_adicional: document.getElementById('txt-'+did) ? document.getElementById('txt-'+did).value : '',
+    servicos_selecionados: sel
+  };
+}
+
+// ─── SELECTS ──────────────────────────────────────────────────────────────────
+function popularSelects(){
+  if(!DB.cad) return;
+  var dl=document.getElementById('datalist-unidade'), pv=document.getElementById('sel-unidade').value;
+  dl.innerHTML='';
+  DB.cad.unidades.forEach(function(u){
+    var o=document.createElement('option');
+    o.value=u.SIGLA+' — '+u.NOME_COMPLETO;
+    dl.appendChild(o);
+  });
+  if(pv){
+    var u = DB.cad.unidades.find(function(u){ return u.SIGLA === pv; });
+    if(u) document.getElementById('sel-unidade').value = u.SIGLA+' — '+u.NOME_COMPLETO;
+  }
+  ['sel-elaborado','sel-verificado','sel-aprovado','sel-fiscal','sel-gestor'].forEach(function(id){
+    var dl=document.getElementById('datalist-' + id.replace('sel-','')), p=document.getElementById(id).value;
+    dl.innerHTML='';
+    DB.cad.responsaveis.forEach(function(r){
+      var o=document.createElement('option'); o.value=r.NOME + ' (' + r.CARGO + ')';
+      dl.appendChild(o);
+    });
+    if(p) document.getElementById(id).value=p;
+  });
+  var sm=document.getElementById('sel-modalidade'), pm=sm.value;
+  sm.innerHTML='<option value="">— Selecione —</option>';
+  DB.cad.modalidades.forEach(function(m){
+    var o=document.createElement('option'); o.value=m.MODALIDADE; o.textContent=m.MODALIDADE;
+    sm.appendChild(o);
+  });
+  if(pm) sm.value=pm;
+}
+
+function onUnidade(){
+  var input=document.getElementById('sel-unidade');
+  var value=input.value;
+  var sigla=value.split(' — ')[0];
+  var u=DB.cad.unidades.find(function(u){ return u.SIGLA===sigla; });
+  if(u){
+    document.getElementById('f-UNIDADE').value=u.NOME_COMPLETO||'';
+    document.getElementById('f-ENDERECO').value=(u.ENDERECO+', '+u.MUNICIPIO+' - '+u.UF).replace(/undefined/g,'')||'';
+    document.getElementById('f-CNPJ').value=u.CNPJ||'';
+    document.getElementById('f-SIGLA').value=u.SIGLA||'';
+    atualizaCodigo();
+  }
+}
+
+function updateElaborado(){
+  var input = document.getElementById('sel-elaborado');
+  var name = input.value.split(' (')[0];
+  var resp = DB.cad.responsaveis.find(r => r.NOME === name);
+  document.getElementById('f-ELABORADO').value = resp ? resp.INICIAIS : '';
+}
+
+function updateVerificado(){
+  var input = document.getElementById('sel-verificado');
+  var name = input.value.split(' (')[0];
+  var resp = DB.cad.responsaveis.find(r => r.NOME === name);
+  document.getElementById('f-VERIFICADO').value = resp ? resp.INICIAIS : '';
+}
+
+function updateAprovado(){
+  var input = document.getElementById('sel-aprovado');
+  var name = input.value.split(' (')[0];
+  var resp = DB.cad.responsaveis.find(r => r.NOME === name);
+  document.getElementById('f-APROVADO').value = resp ? resp.INICIAIS : '';
+}
+
+function updateFiscal(){
+  var input = document.getElementById('sel-fiscal');
+  var name = input.value.split(' (')[0];
+  document.getElementById('f-FISCAL_CONTRATO').value = name;
+}
+
+function updateGestor(){
+  var input = document.getElementById('sel-gestor');
+  var name = input.value.split(' (')[0];
+  document.getElementById('f-GESTOR_CONTRATO').value = name;
+}
+
+function atualizaCodigo(){
+  var sigla=document.getElementById('f-SIGLA').value||'XXX';
+  var projeto=(document.getElementById('f-SERVICO').value||'PROJETO');
+  var svc=projeto.split(' ').slice(0,2).map(function(w){ return w.toUpperCase().replace(/[^A-Z]/g,''); }).filter(Boolean).join('')||'PROJETO';
+  var seq=(document.getElementById('f-SEQ').value||'001').padStart(3,'0');
+  document.getElementById('f-CODIGO').value='SS-'+sigla+'-'+svc+'-EX-ORC-DOC-'+seq+'-R00';
+}
+
+// ─── COLETAR DADOS ─────────────────────────────────────────────────────────────
+function syncServicosPrincipaisField(){
+  var el=document.getElementById('f-RELACAO_SERVICOS');
+  if(!el) return;
+  el.value = servicosPrincipais.map(function(item){
+    if(item.type==='group') return item.text;
+    return '• ' + item.text;
+  }).join('\n');
+}
+
+function syncServicosPrincipaisFromField(){
+  var el=document.getElementById('f-RELACAO_SERVICOS');
+  var lines = el && el.value
+    ? el.value.split('\n').map(function(v){ return v.trim(); }).filter(Boolean)
+    : [];
+  var hasExplicitMarkers = lines.some(function(line){ return line.indexOf('• ')===0 || line.indexOf('- ')===0; });
+  servicosPrincipais = lines.map(function(line){
+    if(hasExplicitMarkers){
+      if(line.indexOf('• ')===0 || line.indexOf('- ')===0) return {type:'item', text: line.slice(2)};
+      return {type:'group', text: line};
+    }
+    return {type:'item', text: line};
+  });
+  renderServicosPrincipais();
+}
+
+function escHtml(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderServicosPrincipais(){
+  var list=document.getElementById('svc-principal-list');
+  if(!list) return;
+  if(!servicosPrincipais.length){
+    list.innerHTML='<div class="svc-empty">Nenhum serviço adicionado ainda</div>';
+    syncServicosPrincipaisField();
+    return;
+  }
+  list.innerHTML=servicosPrincipais.map(function(item,idx){
+    var isGroup = item.type==='group';
+    return '<div class="svc-item'+(isGroup?' svc-group':'')+'" draggable="true" data-idx="'+idx+'" ondragstart="dragServicoPrincipal(event)" ondragover="event.preventDefault()" ondrop="dropServicoPrincipal(event)" ondragend="this.classList.remove(\'dragging\')">'
+      +'<div class="svc-handle">☰</div>'
+      +'<div class="svc-text'+(isGroup?' svc-group':'')+'">'+(isGroup?'<strong>'+escHtml(item.text)+'</strong>':escHtml('• '+item.text))+'</div>'
+      +'<button type="button" class="svc-remove" onclick="removerServicoPrincipal('+idx+')" title="Remover">×</button>'
+      +'</div>';
+  }).join('');
+  syncServicosPrincipaisField();
+}
+
+function adicionarServicoPrincipal(){
+  var inp=document.getElementById('svc-principal-input');
+  if(!inp) return;
+  var txt=inp.value.trim();
+  if(!txt) return;
+  servicosPrincipais.push({type:'item', text: txt});
+  inp.value='';
+  renderServicosPrincipais();
+  inp.focus();
+}
+
+function adicionarTituloServicoPrincipal(){
+  var inp=document.getElementById('svc-principal-input');
+  if(!inp) return;
+  var txt=inp.value.trim();
+  if(!txt) return;
+  servicosPrincipais.push({type:'group', text: txt});
+  inp.value='';
+  renderServicosPrincipais();
+  inp.focus();
+}
+
+function removerServicoPrincipal(idx){
+  servicosPrincipais.splice(idx,1);
+  renderServicosPrincipais();
+}
+
+function dragServicoPrincipal(ev){
+  var item=ev.currentTarget;
+  item.classList.add('dragging');
+  ev.dataTransfer.effectAllowed='move';
+  ev.dataTransfer.setData('text/plain', item.dataset.idx);
+}
+
+function dropServicoPrincipal(ev){
+  ev.preventDefault();
+  var from=parseInt(ev.dataTransfer.getData('text/plain'),10);
+  var to=parseInt(ev.currentTarget.dataset.idx,10);
+  if(isNaN(from)||isNaN(to)||from===to) return;
+  var moved=servicosPrincipais.splice(from,1)[0];
+  servicosPrincipais.splice(to,0,moved);
+  renderServicosPrincipais();
+}
+
+function syncQualificacoesTecnicasField(){
+  ['A','B','C','D','E'].forEach(function(letra,idx){
+    var el=document.getElementById('f-QUANT_'+letra);
+    if(el) el.value=qualificacoesTecnicas[idx]||'';
+  });
+}
+
+function syncQualificacoesTecnicasFromFields(){
+  qualificacoesTecnicas = ['A','B','C','D','E'].map(function(letra){
+    var el=document.getElementById('f-QUANT_'+letra);
+    return el ? el.value.trim() : '';
+  }).filter(Boolean);
+  renderQualificacoesTecnicas();
+}
+
+function renderQualificacoesTecnicas(){
+  var list=document.getElementById('qual-tecnica-list');
+  if(!list) return;
+  if(!qualificacoesTecnicas.length){
+    list.innerHTML='<div class="svc-empty">Nenhuma qualificação adicionada ainda</div>';
+    syncQualificacoesTecnicasField();
+    return;
+  }
+  list.innerHTML=qualificacoesTecnicas.map(function(txt,idx){
+    return '<div class="svc-item" draggable="true" data-idx="'+idx+'" ondragstart="dragQualificacaoTecnica(event)" ondragover="event.preventDefault()" ondrop="dropQualificacaoTecnica(event)" ondragend="this.classList.remove(\'dragging\')">'
+      +'<div class="svc-handle">☰</div>'
+      +'<div class="svc-text">'+escHtml(txt)+'</div>'
+      +'<button type="button" class="svc-remove" onclick="removerQualificacaoTecnica('+idx+')" title="Remover">×</button>'
+      +'</div>';
+  }).join('');
+  syncQualificacoesTecnicasField();
+}
+
+function adicionarQualificacaoTecnica(){
+  var inp=document.getElementById('qual-tecnica-input');
+  if(!inp) return;
+  var txt=inp.value.trim();
+  if(!txt) return;
+  if(qualificacoesTecnicas.length>=5){
+    alert('O template atual possui espaço para até 5 itens: a), b), c), d) e e).');
+    return;
+  }
+  qualificacoesTecnicas.push(txt);
+  inp.value='';
+  renderQualificacoesTecnicas();
+  inp.focus();
+}
+
+function removerQualificacaoTecnica(idx){
+  qualificacoesTecnicas.splice(idx,1);
+  renderQualificacoesTecnicas();
+}
+
+function dragQualificacaoTecnica(ev){
+  var item=ev.currentTarget;
+  item.classList.add('dragging');
+  ev.dataTransfer.effectAllowed='move';
+  ev.dataTransfer.setData('text/plain', item.dataset.idx);
+}
+
+function dropQualificacaoTecnica(ev){
+  ev.preventDefault();
+  var from=parseInt(ev.dataTransfer.getData('text/plain'),10);
+  var to=parseInt(ev.currentTarget.dataset.idx,10);
+  if(isNaN(from)||isNaN(to)||from===to) return;
+  var moved=qualificacoesTecnicas.splice(from,1)[0];
+  qualificacoesTecnicas.splice(to,0,moved);
+  renderQualificacoesTecnicas();
+}
+
+function syncEquipeTecnicaField(){
+  var el=document.getElementById('f-EQUIPE_TECNICA');
+  if(el) el.value=equipeTecnicaSel.join('\n');
+}
+
+function syncEquipeTecnicaFromField(){
+  var el=document.getElementById('f-EQUIPE_TECNICA');
+  equipeTecnicaSel = el && el.value
+    ? el.value.split('\n').map(function(v){ return v.trim(); }).filter(Boolean)
+    : [];
+  renderEquipeTecnica();
+}
+
+function renderEquipeTecnica(){
+  var grid=document.getElementById('eq-tecnica-grid');
+  if(!grid) return;
+  var opcoes=EQUIPE_TECNICA_OPCOES.slice();
+  equipeTecnicaSel.forEach(function(item){
+    if(opcoes.indexOf(item)===-1) opcoes.push(item);
+  });
+  grid.innerHTML=opcoes.map(function(item,idx){
+    var on=equipeTecnicaSel.indexOf(item)>-1;
+    return '<label class="eq-box'+(on?' on':'')+'">'
+      +'<input type="checkbox" '+(on?'checked':'')+' onchange="toggleEquipeTecnica(\''+idx+'\')">'
+      +'<span>'+escHtml(item)+'</span>'
+      +'</label>';
+  }).join('');
+  grid.dataset.opcoes=JSON.stringify(opcoes);
+  syncEquipeTecnicaField();
+}
+
+function toggleEquipeTecnica(idx){
+  var grid=document.getElementById('eq-tecnica-grid');
+  var opcoes=grid&&grid.dataset.opcoes ? JSON.parse(grid.dataset.opcoes) : [];
+  var item=opcoes[parseInt(idx,10)];
+  if(!item) return;
+  var pos=equipeTecnicaSel.indexOf(item);
+  if(pos>-1) equipeTecnicaSel.splice(pos,1);
+  else equipeTecnicaSel.push(item);
+  renderEquipeTecnica();
+}
+
+function adicionarEquipeTecnicaExtra(){
+  var inp=document.getElementById('eq-tecnica-extra');
+  if(!inp) return;
+  var item=inp.value.trim();
+  if(!item) return;
+  if(equipeTecnicaSel.indexOf(item)===-1) equipeTecnicaSel.push(item);
+  inp.value='';
+  renderEquipeTecnica();
+  inp.focus();
+}
+
+function gv(id){ var e=document.getElementById('f-'+id); return e?e.value.trim():''; }
+
+function collectData(){
+  syncServicosPrincipaisField();
+  syncQualificacoesTecnicasField();
+  syncEquipeTecnicaField();
+  var servico = gv('SERVICO');
+  return {
+    UNIDADE: gv('UNIDADE'), ENDERECO: gv('ENDERECO'), CNPJ: gv('CNPJ'),
+    SERVICO: servico, REGIME_CONTRATACAO: gv('REGIME_CONTRATACAO'),
+    CODIGO: gv('CODIGO'), DATA: gv('DATA'), REVISAO: gv('REVISAO'),
+    INDICE_REV: gv('INDICE_REV')||'Emissão inicial',
+    ELABORADO: gv('ELABORADO'), VERIFICADO: gv('VERIFICADO'), APROVADO: gv('APROVADO'),
+    FISCAL_CONTRATO: gv('FISCAL_CONTRATO'), GESTOR_CONTRATO: gv('GESTOR_CONTRATO'),
+    TELEFONE_FISCAL: gv('TELEFONE_FISCAL'),
+    PRAZO_EXECUCAO: gv('PRAZO_EXECUCAO'), PRAZO_VIGENCIA: gv('PRAZO_VIGENCIA'),
+    JUSTIFICATIVA: gv('JUSTIFICATIVA'),
+    RELACAO_SERVICOS: gv('RELACAO_SERVICOS'),
+    EQUIPE_TECNICA: gv('EQUIPE_TECNICA'),
+    QUANT_A: gv('QUANT_A'),
+    QUANT_B: gv('QUANT_B'),
+    QUANT_C: gv('QUANT_C'),
+    QUANT_D: gv('QUANT_D'),
+    QUANT_E: gv('QUANT_E'),
+    disciplinas_selecionadas: discsSel.slice(),
+    disciplinas_dados: discsSel.map(function(did){ return getDiscData(did); }),
+    status: 'rascunho',
+    id: document.getElementById('editing-id').value || '',
+    _ts: Date.now()
+  };
+}
+
+// ─── REVIEW ────────────────────────────────────────────────────────────────────
+function buildReview(){
+  var d=collectData();
+  function rr(lbl,ico,val){
+    return '<div class="rev-row"><span class="rev-ico">'+ico+'</span><span class="rev-lbl">'+lbl+'</span>'
+      +'<span class="rev-val'+(val?'':' rev-empty')+'">'+(val||'(não preenchido)')+'</span></div>';
+  }
+  var html='<div class="rev-sec">Identificação</div>'
+    +rr('Unidade','🏛️',d.UNIDADE)+rr('Serviço','🔧',d.SERVICO)
+    +rr('Regime','📋',d.REGIME_CONTRATACAO)+rr('Código','🔢',d.CODIGO)
+    +rr('Elaborado','👤',d.ELABORADO)
+    +rr('Verificado','✓',d.VERIFICADO)+rr('Aprovado','✓',d.APROVADO)
+    +'<div class="rev-sec">Contrato</div>'
+    +rr('Fiscal','👁️',d.FISCAL_CONTRATO)+rr('Gestor','📌',d.GESTOR_CONTRATO)
+    +rr('Prazo exec.','⏱️',d.PRAZO_EXECUCAO)+rr('Prazo vig.','📅',d.PRAZO_VIGENCIA)
+    +rr('Qualificação A','a)',d.QUANT_A)+rr('Qualificação B','b)',d.QUANT_B)
+    +rr('Qualificação C','c)',d.QUANT_C)+rr('Qualificação D','d)',d.QUANT_D)
+    +rr('Qualificação E','e)',d.QUANT_E)
+    +'<div class="rev-sec">Disciplinas</div>';
+  d.disciplinas_dados.forEach(function(dd){
+    var dc=DISC_CONFIG.find(function(x){ return x.id===dd.disciplina_id; });
+    html+='<div class="rev-row"><span class="rev-ico">'+(dc?dc.ico:'🔧')+'</span>'
+      +'<span class="rev-lbl">'+dd.disciplina_nome+'</span>'
+      +'<span class="rev-val">'
+      +(dd.delegado
+        ? '<span style="color:#805ad5;font-weight:700">DELEGADO</span> → '+ (dd.delegado_nome||'sem nome')
+        : 'RT: <b>'+(dd.responsavel_tecnico||'—')+'</b> · '+dd.servicos_selecionados.length+' serviço(s)'
+         +(dd.texto_adicional?' · <span style="color:var(--am)">+texto adicional</span>':'')
+       )+'</span></div>';
+  });
+  document.getElementById('review-content').innerHTML=html;
+}
+
+// ─── SALVAR ────────────────────────────────────────────────────────────────────
+function baixarJson(obj, filename){
+  var blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 500);
+}
+
+function nomeArquivoRascunho(d){
+  var base = (d.CODIGO || d.SERVICO || d.UNIDADE || 'rascunho-gen').toString();
+  base = base.replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+  return (base || 'rascunho-gen') + '.json';
+}
+
+function nomeArquivoProjeto(d){
+  var base = (d.CODIGO || d.SERVICO || d.UNIDADE || 'projeto-gen').toString();
+  base = base.replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+  return (base || 'projeto-gen') + '.json';
+}
+
+function salvarRascunho(){
+  var d=collectData();
+  d.status='rascunho';
+  var projs=LS.projs();
+  if(d.id){ var i=projs.findIndex(function(p){ return p.id===d.id; }); if(i>=0) projs[i]={...projs[i],...d}; else projs.push(d); }
+  else{ d.id='p'+Date.now(); document.getElementById('editing-id').value=d.id; projs.push(d); }
+  LS.sProjs(projs); updatePjBadge();
+  baixarJson(d, nomeArquivoRascunho(d));
+  alert('Rascunho baixado para o computador. Para continuar depois, use "Carregar rascunho".');
+}
+
+function carregarRascunho(inp){
+  var f=inp.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(Array.isArray(data)){
+        if(!data.length) throw new Error('arquivo sem rascunhos');
+        LS.sProjs(data);
+        renderProjetos();
+        updatePjBadge();
+        showPage('projetos');
+        alert('Lista carregada nesta sessão: '+data.length+' projeto(s).');
+      } else {
+        if(!data.id) data.id='p'+Date.now();
+        aplicarProjetoNoFormulario(data);
+        var projs=LS.projs();
+        if(data.id && !projs.some(function(p){ return p.id===data.id; })) projs.push(data);
+        LS.sProjs(projs);
+        updatePjBadge();
+      }
+    }catch(err){
+      alert('Não foi possível carregar o rascunho: '+err.message);
+    } finally {
+      inp.value='';
+    }
+  };
+  r.readAsText(f);
+}
+
+function novoFormulario(){
+  discsSel=[];
+  servicosPrincipais=[];
+  qualificacoesTecnicas=[];
+  equipeTecnicaSel=[];
+  document.querySelectorAll('.f input:not([readonly]),.f textarea,.f select').forEach(function(e){
+    if(e.tagName==='SELECT') e.selectedIndex=0; else e.value='';
+  });
+  renderServicosPrincipais();
+  renderQualificacoesTecnicas();
+  renderEquipeTecnica();
+  document.getElementById('editing-id').value='';
+  document.getElementById('editing-badge').style.display='none';
+  document.getElementById('fps-disciplinas').innerHTML='';
+  renderDiscSelector();
+  buildWizardUI();
+  curStep=1; updateWizUI();
+  showPage('formulario');
+}
+
+// ─── PROJETOS ──────────────────────────────────────────────────────────────────
+function renderProjetos(){
+  var projs=LS.projs();
+  var srch=(document.getElementById('pj-srch')||{value:''}).value.toLowerCase();
+  var fst=(document.getElementById('pj-fst')||{value:''}).value;
+  var filtered=projs.filter(function(p){
+    return (!srch||((p.UNIDADE||'').toLowerCase().includes(srch)||(p.SERVICO||'').toLowerCase().includes(srch)))
+        && (!fst||p.status===fst);
+  }).sort(function(a,b){ return (b._ts||0)-(a._ts||0); });
+  var g=document.getElementById('pj-grid');
+  if(!filtered.length){ g.innerHTML='<div class="empty">📁 Nenhum projeto carregado nesta sessão</div>'; return; }
+  g.innerHTML=filtered.map(function(p){
+    var discsStr=(p.disciplinas_selecionadas||[]).map(function(did){
+      var dc=DISC_CONFIG.find(function(d){ return d.id===did; }); return dc?dc.ico:'🔧';
+    }).join(' ');
+    return '<div class="pj-card">'
+      +'<div class="pj-hdr"><span class="pj-num">'+(p.CODIGO||'SEM-COD')+'</span>'
+      +'<div><div class="pj-ttl">'+(p.SERVICO||'Sem título')+'</div>'
+      +'<div class="pj-unit">'+(p.UNIDADE||'')+'</div></div>'
+      +'<span class="sbg '+(p.status==='emitido'?'s-em':'s-r')+'">'+(p.status||'rascunho')+'</span></div>'
+      +'<div class="pj-meta">'
+      +'<div class="pj-mi"><div class="pj-ml">Fiscal</div><div class="pj-mv">'+(p.FISCAL_CONTRATO||'—')+'</div></div>'
+      +'<div class="pj-mi"><div class="pj-ml">Prazo</div><div class="pj-mv">'+(p.PRAZO_EXECUCAO||'—')+'</div></div>'
+      +'<div class="pj-mi"><div class="pj-ml">Data</div><div class="pj-mv">'+(p.DATA||'—')+'</div></div>'
+      +'<div class="pj-mi"><div class="pj-ml">Disciplinas</div><div class="pj-mv">'+(discsStr||'—')+'</div></div>'
+      +'</div>'
+      +'<div class="pj-act">'
+      +'<button class="btn btn-o" onclick="reabrirProj(\''+p.id+'\')">✏️ Editar</button>'
+      +'<button class="btn btn-s" onclick="gerarDoProjeto(\''+p.id+'\')">📄 Gerar .docx</button>'
+      +'<button class="btn btn-d" onclick="deletarProj(\''+p.id+'\')">🗑️</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function updatePjBadge(){
+  document.getElementById('proj-count-badge').textContent=LS.projs().length; }
+
+function reabrirProj(id){
+  var p=LS.projs().find(function(x){ return x.id===id; }); if(!p) return;
+  aplicarProjetoNoFormulario(p);
+}
+
+function aplicarProjetoNoFormulario(p){
+  discsSel=(p.disciplinas_selecionadas||[]).slice();
+  renderDiscSelector(); renderDiscFps(); buildWizardUI();
+  Object.entries(p).forEach(function(pair){
+    var k=pair[0],v=pair[1]; if(typeof v!=='string') return;
+    var el=document.getElementById('f-'+k); if(el){ el.value=v; if(el.readOnly) el._locked=true; }
+  });
+  syncServicosPrincipaisFromField();
+  syncQualificacoesTecnicasFromFields();
+  syncEquipeTecnicaFromField();
+  // Handle responsible fields
+  if(p.ELABORADO){
+    var resp = DB.cad.responsaveis.find(r => r.INICIAIS === p.ELABORADO);
+    if(resp) document.getElementById('sel-elaborado').value = resp.NOME + ' (' + resp.CARGO + ')';
+  }
+  if(p.VERIFICADO){
+    var resp = DB.cad.responsaveis.find(r => r.INICIAIS === p.VERIFICADO);
+    if(resp) document.getElementById('sel-verificado').value = resp.NOME + ' (' + resp.CARGO + ')';
+  }
+  if(p.APROVADO){
+    var resp = DB.cad.responsaveis.find(r => r.INICIAIS === p.APROVADO);
+    if(resp) document.getElementById('sel-aprovado').value = resp.NOME + ' (' + resp.CARGO + ')';
+  }
+  if(p.FISCAL_CONTRATO){
+    var resp = DB.cad.responsaveis.find(r => r.NOME === p.FISCAL_CONTRATO);
+    if(resp) document.getElementById('sel-fiscal').value = resp.NOME + ' (' + resp.CARGO + ')';
+  }
+  if(p.GESTOR_CONTRATO){
+    var resp = DB.cad.responsaveis.find(r => r.NOME === p.GESTOR_CONTRATO);
+    if(resp) document.getElementById('sel-gestor').value = resp.NOME + ' (' + resp.CARGO + ')';
+  }
+  // Handle unidade
+  if(p.UNIDADE){
+    var u = DB.cad.unidades.find(function(u){ return u.NOME_COMPLETO === p.UNIDADE; });
+    if(u) document.getElementById('sel-unidade').value = u.SIGLA + ' — ' + u.NOME_COMPLETO;
+  }
+  (p.disciplinas_dados||[]).forEach(function(dd){
+    var did=dd.disciplina_id;
+    var del=document.getElementById('del-chk-'+did);
+    if(del){ del.checked=!!dd.delegado; toggleDelegacao(did); }
+    var dn=document.getElementById('del-nome-'+did); if(dn) dn.value=dd.delegado_nome||'';
+    var dc=document.getElementById('del-cont-'+did); if(dc) dc.value=dd.delegado_contato||'';
+    var rt=document.getElementById('rt-nm-'+did); if(rt) rt.value=dd.responsavel_tecnico||'';
+    var rs=document.getElementById('rt-sel-'+did); if(rs && dd.responsavel_tecnico) rs.value=dd.responsavel_tecnico;
+    var ob=document.getElementById('obs-'+did); if(ob) ob.value=dd.observacoes||'';
+    var tx=document.getElementById('txt-'+did); if(tx) tx.value=dd.texto_adicional||'';
+    (dd.servicos_selecionados||[]).forEach(function(s){
+      var row=document.getElementById(serviceElId('srw', s.CHAVE));
+      var chk=document.getElementById(serviceElId('schk', s.CHAVE));
+      if(row){ row.classList.add('sel'); }
+      if(chk){ chk.textContent='✓'; }
+      if(row && row.dataset.group){
+        var group=document.getElementById(row.dataset.group);
+        if(group && !group.classList.contains('open')) toggleSrvGroup(row.dataset.group);
+        updateSrvGroupCount(row.dataset.group);
+      }
+    });
+    var list=document.getElementById('sl-'+did);
+    var cnt=document.getElementById('sc-'+did);
+    if(list&&cnt) cnt.textContent=list.querySelectorAll('.srw.sel').length;
+  });
+  document.getElementById('editing-id').value=p.id||'';
+  var b=document.getElementById('editing-badge'); b.style.display='inline'; b.textContent='Editando: '+(p.CODIGO||'rascunho carregado');
+  curStep=1; updateWizUI();
+  showPage('formulario');
+}
+function deletarProj(id){
+  if(!confirm('Remover projeto?')) return; LS.sProjs(LS.projs().filter(function(p){ return p.id!==id; })); renderProjetos(); updatePjBadge(); }
+async function gerarDoProjeto(id){ var p=LS.projs().find(function(x){ return x.id===id; }); if(p) await gerarDocumento(p); }
+function exportarProjetos(){ baixarJson(LS.projs(), 'projetos_gen_sessao.json'); }
+function importarProjetos(inp){ carregarRascunho(inp); }
+
+// ─── BANCO PREVIEW ─────────────────────────────────────────────────────────────
+function atualizarBancoTags(){
+  var tc=document.getElementById('bt-cad');
+  var te=document.getElementById('bt-esp');
+  var tt=document.getElementById('bt-tpl');
+  if(DB.cad){ tc.className='bs-tag bs-ok'; tc.textContent='✅ Cadastros: '+DB.cad.unidades.length+' unidades'; }
+  if(DB.esp){ var tot=Object.values(DB.esp.por_disciplina).reduce(function(a,v){ return a+v.length; },0); te.className='bs-tag bs-ok'; te.textContent='✅ Especificações: '+tot+' serviços'; }
+  if(DB.tplBytes){ tt.className='bs-tag bs-ok'; tt.textContent='✅ Template carregado'; }
+}
+
+function renderBancoPreview(){
+  atualizarBancoTags();
+  if(DB.cad){
+    document.getElementById('tb-unidades').innerHTML=(DB.cad.unidades||[]).map(function(u){
+      return '<tr><td><b>'+u.SIGLA+'</b></td><td>'+u.NOME_COMPLETO+'</td><td style="font-size:10px;color:#718096">'+u.ENDERECO+', '+u.MUNICIPIO+' - '+u.UF+'</td><td style="font-family:var(--mono);font-size:10px">'+u.CNPJ+'</td></tr>';
+    }).join('');
+    document.getElementById('tb-responsaveis').innerHTML=(DB.cad.responsaveis||[]).map(function(r){
+      return '<tr><td><b>'+r.NOME+'</b></td><td style="color:var(--az3);font-family:var(--mono)">'+r.INICIAIS+'</td><td style="font-size:10px">'+r.CARGO+'</td><td style="font-size:10px;color:#718096">'+r.CREA_CAU+'</td><td style="font-size:10px">'+r.PAPEL+'</td></tr>';
+    }).join('');
+    document.getElementById('tb-servicos').innerHTML=(DB.cad.servicos||[]).map(function(s){
+      return '<tr><td>'+s.NOME_SERVICO+'</td><td style="font-size:10px;color:#718096">'+(s.DESCRICAO_RESUMIDA||'')+'</td></tr>';
+    }).join('');
+  }
+  if(DB.esp){
+    var rows=Object.values(DB.esp.por_disciplina).flat();
+    document.getElementById('tb-disciplinas').innerHTML=rows.map(function(d){
+      return '<tr><td style="font-weight:700;color:var(--az);font-size:10px">'+(d.CHAVE||'').split('|')[0]+'</td><td>'+d.NOME_SERVICO+'</td><td style="font-family:var(--mono);font-size:9px;color:#718096">'+d.CHAVE+'</td><td style="font-size:9px;color:#718096">'+(d.NORMAS_ABNT||'')+'</td></tr>';
+    }).join('');
+  }
+}
+
+// ─── GERADOR .docx ─────────────────────────────────────────────────────────────
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function expandMultiPara(xml, marker, texto){
+  if(!texto || !xml.includes(marker)) return xml;
+  var idx = xml.indexOf(marker);
+  if(idx === -1) return xml;
+  var pStart = xml.lastIndexOf('<w:p ', idx);
+  var pEnd = xml.indexOf('</w:p>', idx) + 6;
+  if(pStart === -1 || pEnd <= 5) return xml.split(marker).join(esc(texto));
+  var origPara = xml.slice(pStart, pEnd);
+  // Extrair pPr
+  var pPrS=origPara.indexOf('<w:pPr>'), pPrE=origPara.indexOf('</w:pPr>')+8;
+  var pPr=(pPrS>-1&&pPrE>7)?origPara.slice(pPrS,pPrE):'<w:pPr><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>';
+  // Extrair rPr
+  var rPrS=origPara.indexOf('<w:rPr>'), rPrE=origPara.indexOf('</w:rPr>')+8;
+  var rPr=(rPrS>-1&&rPrE>7)?origPara.slice(rPrS,rPrE):'<w:rPr><w:szCs w:val="20"/></w:rPr>';
+  // Um <w:p> por parágrafo
+  var linhas=texto.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length>0; });
+  if(linhas.length===0) linhas=[texto.trim()];
+  var xmlParas=linhas.map(function(linha){
+    return '<w:p>'+pPr+'<w:r>'+rPr+'<w:t xml:space="preserve">'+esc(linha)+'</w:t></w:r></w:p>';
+  }).join('');
+  return xml.slice(0,pStart)+xmlParas+xml.slice(pEnd);
+}
+
+function buildNormaXml(n){
+  return '<w:p><w:pPr><w:pStyle w:val="PargrafodaLista"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="41"/></w:numPr><w:spacing w:after="0"/></w:pPr><w:r><w:t>'+esc(n)+'</w:t></w:r></w:p>';
+}
+
+async function salvarEGerar(){
+  var d=collectData();
+  d.status='emitido'; d._ts=Date.now();
+  var projs=LS.projs();
+  if(d.id){ var i=projs.findIndex(function(p){ return p.id===d.id; }); if(i>=0) projs[i]={...projs[i],...d}; else projs.push(d); }
+  else{ d.id='p'+Date.now(); document.getElementById('editing-id').value=d.id; projs.push(d); }
+  LS.sProjs(projs); updatePjBadge();
+  baixarJson(d, nomeArquivoProjeto(d));
+  await gerarDocumento(d);
+}
+
+async function gerarDocumento(data){
+  if(!DB.tplBytes){ alert('Template não carregado. Vá em Banco de Dados e selecione o TEMPLATE.docx.'); return; }
+  var btn=document.querySelector('.btn-s.btn-lg');
+  var st=document.getElementById('status');
+  if(btn) btn.disabled=true;
+  st.className='status loading'; st.textContent='⏳ Gerando documento...';
+  try{
+    var discsData=data.disciplinas_dados||[];
+    var servExecXml='';
+    var todasNormas=[];
+
+    discsData.forEach(function(dd){
+      if(dd.delegado){
+        servExecXml+='<w:p><w:pPr><w:pStyle w:val="Ttulo3"/><w:spacing w:after="120"/></w:pPr><w:r><w:t>'+esc(dd.disciplina_nome)+'</w:t></w:r></w:p>';
+        servExecXml+='<w:p><w:pPr><w:rPr><w:i/><w:color w:val="9B2C2C"/><w:szCs w:val="20"/></w:rPr></w:pPr><w:r><w:rPr><w:i/><w:color w:val="9B2C2C"/><w:szCs w:val="20"/></w:rPr><w:t>DISCIPLINA DELEGADA — a ser preenchida por: '+esc(dd.delegado_nome||'responsável técnico') + (dd.delegado_contato ? ' (' + esc(dd.delegado_contato) + ')' : '') + '</w:t></w:r></w:p>';
+        return;
+      }
+      var srvSel=dd.servicos_selecionados||[];
+      if(!srvSel.length && !dd.texto_adicional) return;
+      // Cabeçalho da disciplina
+      servExecXml+='<w:p><w:pPr><w:pStyle w:val="Ttulo3"/><w:spacing w:after="80"/></w:pPr><w:r><w:t>'+esc(dd.disciplina_nome)+'</w:t></w:r></w:p>';
+      // Responsável Técnico
+      if(dd.responsavel_tecnico){
+        servExecXml+='<w:p><w:pPr><w:spacing w:before="0" w:after="80"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+          +'<w:r><w:rPr><w:b/><w:bCs/><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">Responsável Técnico: </w:t></w:r>'
+          +'<w:r><w:rPr><w:szCs w:val="20"/></w:rPr><w:t>'+esc(dd.responsavel_tecnico)+'</w:t></w:r></w:p>';
+      }
+      // Normas desta disciplina
+      var normasDisc=[];
+      srvSel.forEach(function(s){
+        (s.NORMAS_ABNT||'').split(';').map(function(n){ return n.trim(); }).filter(Boolean).forEach(function(n){
+          if(normasDisc.indexOf(n)===-1) normasDisc.push(n);
+          if(todasNormas.indexOf(n)===-1) todasNormas.push(n);
+        });
+      });
+      // Serviços selecionados
+      srvSel.forEach(function(s){
+        var texto=s.TEXTO_TECNICO||'';
+        // Título do serviço
+        servExecXml+='<w:p><w:pPr><w:spacing w:before="120" w:after="60"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+          +'<w:r><w:rPr><w:b/><w:bCs/><w:szCs w:val="20"/></w:rPr><w:t>'+esc(s.NOME_SERVICO)+'</w:t></w:r></w:p>';
+        // Normas do serviço
+        (s.NORMAS_ABNT||'').split(';').map(function(n){ return n.trim(); }).filter(Boolean).forEach(function(n){
+          servExecXml+=buildNormaXml(n);
+        });
+        // Texto descritivo
+        if(texto){
+          texto.split('\n').filter(function(l){ return l.trim(); }).forEach(function(linha){
+            servExecXml+='<w:p><w:pPr><w:spacing w:after="120"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+              +'<w:r><w:rPr><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">'+esc(linha.trim())+'</w:t></w:r></w:p>';
+          });
+        }
+      });
+      // Texto adicional
+      if(dd.texto_adicional){
+        servExecXml+='<w:p><w:pPr><w:spacing w:before="100" w:after="60"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+          +'<w:r><w:rPr><w:b/><w:bCs/><w:szCs w:val="20"/></w:rPr><w:t>Observações Técnicas Adicionais:</w:t></w:r></w:p>';
+        dd.texto_adicional.split('\n').filter(function(l){ return l.trim(); }).forEach(function(linha){
+          servExecXml+='<w:p><w:pPr><w:spacing w:after="120"/><w:rPr><w:szCs w:val="20"/></w:rPr></w:pPr>'
+            +'<w:r><w:rPr><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">'+esc(linha.trim())+'</w:t></w:r></w:p>';
+        });
+      }
+    });
+
+    var BOLD_MARKERS=new Set(['UNIDADE','ENDERECO','CNPJ','SERVICO','REGIME_CONTRATACAO','DATA','REVISAO','INDICE_REV','ELABORADO','VERIFICADO','APROVADO','GESTOR_CONTRATO','FISCAL_CONTRATO','TELEFONE_FISCAL','PRAZO_EXECUCAO','PRAZO_VIGENCIA']);
+    var MULTI_MARKERS=new Set(['JUSTIFICATIVA','RELACAO_SERVICOS','EQUIPE_TECNICA']);
+
+    var zip=await JSZip.loadAsync(DB.tplBytes);
+    var xmlFiles=Object.keys(zip.files).filter(function(n){ return n.startsWith('word/')&&n.endsWith('.xml'); });
+
+    for(var fi=0; fi<xmlFiles.length; fi++){
+      var fn=xmlFiles[fi];
+      var c=await zip.file(fn).async('string');
+
+      // 1. Campos multi-parágrafo
+      Object.entries(data).forEach(function(pair){
+        var k=pair[0],v=pair[1];
+        if(typeof v==='string' && MULTI_MARKERS.has(k)) c=expandMultiPara(c,'{{'+k+'}}',v);
+      });
+
+      // 2. Campos em negrito (simples)
+      Object.entries(data).forEach(function(pair){
+        var k=pair[0],v=pair[1];
+        if(typeof v!=='string'||!v) return;
+        var marker='{{'+k+'}}';
+        if(!c.includes(marker)) return;
+        if(BOLD_MARKERS.has(k)){
+          // substituição simples preservando negrito existente
+          c=c.split(marker).join(esc(v));
+        } else {
+          c=c.split(marker).join(esc(v));
+        }
+      });
+
+      // 3. Normas
+      if(c.includes('{{NORMAS_APLICAVEIS}}')){
+        var nxml=todasNormas.length ? todasNormas.map(buildNormaXml).join('') : '<w:p><w:r><w:t>(Normas a definir)</w:t></w:r></w:p>';
+        var nm='{{NORMAS_APLICAVEIS}}', nps=c.lastIndexOf('<w:p ',c.indexOf(nm)), npe=c.indexOf('</w:p>',c.indexOf(nm))+6;
+        if(nps>-1&&npe>5) c=c.slice(0,nps)+nxml+c.slice(npe); else c=c.split(nm).join(todasNormas.join('; '));
+      }
+
+      // 4. Serviços a executar
+      if(c.includes('{{SERVICOS_A_EXECUTAR}}')){
+        var sx=servExecXml||'<w:p><w:r><w:t>(Sem disciplinas técnicas selecionadas)</w:t></w:r></w:p>';
+        var sm='{{SERVICOS_A_EXECUTAR}}', sps=c.lastIndexOf('<w:p ',c.indexOf(sm)), spe=c.indexOf('</w:p>',c.indexOf(sm))+6;
+        if(sps>-1&&spe>5) c=c.slice(0,sps)+sx+c.slice(spe); else c=c.split(sm).join(sx);
+      }
+
+      // 5. Limpar marcadores restantes
+      var leftover = c.match(/\{\{[A-Z_0-9]+\}\}/g);
+      if(leftover) leftover.forEach(function(m){ c=c.split(m).join(''); });
+
+      zip.file(fn, c);
+    }
+
+    var cod=(data.CODIGO||'RT').replace(/[^a-zA-Z0-9_-]/g,'_');
+    var fname=cod+'.docx';
+    var blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; a.click(); URL.revokeObjectURL(a.href);
+    st.className='status success';
+    st.textContent='✅ Gerado: '+fname+' · '+discsData.filter(function(d){ return !d.delegado; }).length+' disciplina(s)';
+  }catch(err){
+    console.error(err); st.className='status error'; st.textContent='❌ Erro: '+err.message;
+  }
+  if(btn) btn.disabled=false;
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+restoreSessionProjects();
+renderDiscSelector();
+renderServicosPrincipais();
+renderQualificacoesTecnicas();
+renderEquipeTecnica();
+buildWizardUI();
+setAutoDate();
+updatePjBadge();
+renderProjetos();
+autoLoadArquivos();
+</script>
+</body>
+</html>
