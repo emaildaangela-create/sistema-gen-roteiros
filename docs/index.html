@@ -244,6 +244,49 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .bs-ok{background:var(--vdc);color:var(--vd);border:1px solid var(--vdb)}
 .bs-no{background:var(--amc);color:var(--am);border:1px solid var(--amb)}
 
+/* ── BANCO CONSULTA MODAL ─────────────────────────────────────────── */
+.bm-overlay{position:fixed;inset:0;background:rgba(15,25,50,.72);z-index:800;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.bm-overlay.open{display:flex}
+.bm-panel{background:#fff;border-radius:14px;width:100%;max-width:920px;max-height:calc(100vh - 40px);display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.35);overflow:hidden;flex-shrink:0;align-self:flex-start}
+.bm-head{background:linear-gradient(135deg,#1a365d,#2c5282);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.bm-head-info{flex:1}
+.bm-head h2{font-size:15px;font-weight:700;margin:0}
+.bm-head p{font-size:11px;opacity:.72;margin-top:3px}
+.bm-close{width:32px;height:32px;border-radius:7px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font)}
+.bm-close:hover{background:rgba(255,255,255,.22)}
+.bm-toolbar{padding:10px 18px;border-bottom:1px solid var(--cib);display:flex;flex-direction:column;gap:8px;flex-shrink:0;background:#fafbff}
+.bm-disc-tabs{display:flex;gap:5px;flex-wrap:wrap}
+.bm-dtab{padding:5px 11px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--cib);color:var(--ci);background:var(--wh);transition:all .12s;white-space:nowrap;user-select:none}
+.bm-dtab:hover{background:var(--azc);border-color:var(--azb)}
+.bm-dtab.active{background:var(--azc);border-color:var(--az3);color:var(--az2)}
+.bm-search{border:1.5px solid var(--cib);border-radius:7px;padding:7px 11px;font-size:12px;font-family:var(--font);width:100%;outline:none;transition:border-color .15s}
+.bm-search:focus{border-color:var(--az3);box-shadow:0 0 0 3px rgba(49,130,206,.1)}
+.bm-body{flex:1;overflow-y:auto;padding:14px 18px}
+.bm-stats{font-size:11px;color:#718096;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--cib)}
+.bm-disc-sec{margin-bottom:18px}
+.bm-disc-sec-hdr{font-size:11px;font-weight:700;color:var(--az);margin-bottom:8px;padding:6px 10px;background:var(--azc);border-radius:6px;border-left:3px solid var(--az3)}
+.bm-cat-hdr{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#a0aec0;margin:10px 0 5px;padding-left:4px}
+.bm-row{background:#fafbff;border:1.5px solid var(--cib);border-radius:8px;margin-bottom:5px;overflow:hidden;transition:border-color .12s}
+.bm-row:hover{border-color:var(--azb)}
+.bm-row.bm-added{border-color:#38a169;background:#f0fff4}
+.bm-row-head{display:flex;align-items:flex-start;gap:10px;padding:9px 12px}
+.bm-row-info{flex:1;min-width:0}
+.bm-row-nm{font-size:12px;font-weight:600;color:var(--tx);line-height:1.3}
+.bm-row-normas{font-size:9px;color:#718096;margin-top:2px;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bm-row-acts{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.bm-exp{font-size:10px;color:var(--az3);cursor:pointer;padding:3px 8px;border-radius:5px;border:1px solid var(--azb);background:var(--wh);font-weight:700;white-space:nowrap;font-family:var(--font)}
+.bm-add-btn{font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;border:none;cursor:pointer;background:#38a169;color:#fff;transition:all .12s;white-space:nowrap;font-family:var(--font)}
+.bm-add-btn:hover:not(:disabled){background:#2f855a}
+.bm-add-btn:disabled{background:var(--cib);color:#718096;cursor:default}
+.bm-copy-btn{font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;border:1.5px solid var(--azb);cursor:pointer;background:var(--wh);color:var(--az3);transition:all .12s;white-space:nowrap;font-family:var(--font)}
+.bm-copy-btn:hover{background:var(--azc)}
+.bm-dtl{display:none;padding:10px 13px;background:#f0f7ff;border-top:1px solid var(--azb);font-size:11px;color:var(--ci);line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.bm-dtl.open{display:block}
+.bm-empty{text-align:center;padding:48px 16px;color:#a0aec0;font-size:12px}
+.bm-footer{padding:11px 18px;border-top:1px solid var(--cib);background:#fafbff;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0}
+.bm-footer p{font-size:11px;color:#718096}
+.banco-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1.5px solid;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;transition:all .12s;font-family:var(--font);white-space:nowrap;background:var(--wh)}
+
 /* ── RESPONSIVE ───────────────────────────────────────────────────── */
 @media(max-width:640px){
   .fg,.fg.g3{grid-template-columns:1fr}
@@ -2623,6 +2666,7 @@ function renderDiscFps(){
       +'<div class="card" id="cdisc-'+did+'">'
       +'<div class="ch" style="background:'+dc.cor+'12;border-color:'+dc.cor+'40">'
       +'<div class="ch-left"><span style="font-size:16px">'+dc.ico+'</span><h2 style="color:'+dc.cor+'">'+dc.nome+'</h2></div>'
+      +'<button class="banco-btn" style="border-color:'+dc.cor+'60;color:'+dc.cor+'" onclick="abrirBancoConsulta(\''+did+'\')">📚 Banco de Especificações</button>'
       +'</div>'
       +'<div class="cb">'
       +'<div class="fg" style="margin-bottom:14px">'
@@ -3487,6 +3531,153 @@ async function gerarDocumento(data){
   if(btn) btn.disabled=false;
 }
 
+// ─── BANCO CONSULTA MODAL ──────────────────────────────────────────────────────
+var _bmDid = null;
+var _bmFiltro = null;
+
+function abrirBancoConsulta(did){
+  if(!DB.esp || !Object.keys(DB.esp.por_disciplina).length){
+    alert('Importe o BANCO_ESPECIFICACOES.xlsx na tela de configuração antes de consultar o banco.');
+    return;
+  }
+  _bmDid = did;
+  _bmFiltro = did;
+  var dc = DISC_CONFIG.find(function(d){ return d.id===did; });
+  document.getElementById('bm-context').textContent = dc ? 'Disciplina atual: '+dc.ico+' '+dc.nome : '';
+  document.getElementById('bm-search').value = '';
+  _renderBmTabs();
+  _renderBmBody();
+  document.getElementById('bancoModal').classList.add('open');
+}
+
+function fecharBancoConsulta(){
+  document.getElementById('bancoModal').classList.remove('open');
+}
+
+function _renderBmTabs(){
+  var html = '<span class="bm-dtab'+(_bmFiltro===null?' active':'')+'" onclick="_setBmFiltro(null)">Todas</span>';
+  DISC_CONFIG.forEach(function(d){
+    var items = DB.esp && DB.esp.por_disciplina[d.id];
+    if(!items || !items.length) return;
+    var active = _bmFiltro===d.id?' active':'';
+    var badge = d.id===_bmDid?' •':'';
+    html += '<span class="bm-dtab'+active+'" onclick="_setBmFiltro(\''+d.id+'\')">'+d.ico+' '+d.nome+badge+'</span>';
+  });
+  document.getElementById('bm-disc-tabs').innerHTML = html;
+}
+
+function _setBmFiltro(did){
+  _bmFiltro = did;
+  _renderBmTabs();
+  _renderBmBody();
+}
+
+function _renderBmBody(){
+  var busca = (document.getElementById('bm-search').value||'').toLowerCase().trim();
+  var body = document.getElementById('bm-body');
+  var total = 0;
+  var html = '';
+
+  var discs = _bmFiltro ? [_bmFiltro] : DISC_CONFIG.map(function(d){ return d.id; });
+
+  discs.forEach(function(did){
+    var servicos = (DB.esp.por_disciplina[did]||[]);
+    var dc = DISC_CONFIG.find(function(d){ return d.id===did; });
+    if(!servicos.length) return;
+
+    var filtered = busca ? servicos.filter(function(s){
+      return (s.NOME_SERVICO||'').toLowerCase().indexOf(busca)>-1
+          || (s.TEXTO_TECNICO||'').toLowerCase().indexOf(busca)>-1
+          || (s.NORMAS_ABNT||'').toLowerCase().indexOf(busca)>-1;
+    }) : servicos;
+    if(!filtered.length) return;
+
+    var grupos = {};
+    filtered.forEach(function(s){
+      var g = (s.TIPO_SERVICO||s.GRUPO_SERVICO||s.GRUPO||'Outros serviços').trim();
+      if(!grupos[g]) grupos[g] = [];
+      grupos[g].push(s);
+    });
+
+    html += '<div class="bm-disc-sec">';
+    if(!_bmFiltro) html += '<div class="bm-disc-sec-hdr">'+(dc?dc.ico+' '+dc.nome:did)+'</div>';
+
+    Object.keys(grupos).sort().forEach(function(tipo){
+      html += '<div class="bm-cat-hdr">'+htmlEsc(tipo)+'</div>';
+      grupos[tipo].forEach(function(s){
+        html += _buildBmRow(s, did);
+        total++;
+      });
+    });
+    html += '</div>';
+  });
+
+  if(!total){
+    html = '<div class="bm-empty">Nenhum serviço encontrado.'+(busca?' Tente outro termo de busca.':'')+'</div>';
+  } else {
+    html = '<div class="bm-stats">'+total+' serviço(s) encontrado(s)</div>' + html;
+  }
+  body.innerHTML = html;
+}
+
+function _buildBmRow(s, did){
+  var chave = String(s.CHAVE||'');
+  var safeId = chave.replace(/[^a-zA-Z0-9_-]/g,'_');
+  var nm = htmlEsc(s.NOME_SERVICO||'');
+  var normas = htmlEsc(s.NORMAS_ABNT||'');
+  var texto = htmlEsc(s.TEXTO_TECNICO||'Sem texto técnico cadastrado.');
+  var isSameDic = did===_bmDid;
+  var isSel = isSameDic && (function(){ var r=document.getElementById(serviceElId('srw',chave)); return r&&r.classList.contains('sel'); })();
+
+  var acts = '';
+  if(isSameDic){
+    if(isSel){
+      acts += '<button class="bm-add-btn" disabled>Selecionado ✓</button>';
+    } else {
+      acts += '<button class="bm-add-btn" onclick="_addDoBanco(\''+htmlEsc(chave)+'\',\''+did+'\')">Usar</button>';
+    }
+  } else {
+    acts += '<button class="bm-copy-btn" onclick="_addDoBanco(\''+htmlEsc(chave)+'\',\''+did+'\')">Copiar texto</button>';
+  }
+
+  return '<div class="bm-row'+(isSel?' bm-added':'')+'" id="bmrow-'+safeId+'">'
+    +'<div class="bm-row-head">'
+    +'<div class="bm-row-info">'
+    +'<div class="bm-row-nm">'+nm+'</div>'
+    +(normas?'<div class="bm-row-normas">'+normas+'</div>':'')
+    +'</div>'
+    +'<div class="bm-row-acts">'
+    +'<button class="bm-exp" onclick="event.stopPropagation();_toggleBmDtl(\'bmdtl-'+safeId+'\',this)">Ver texto</button>'
+    +acts
+    +'</div></div>'
+    +'<div class="bm-dtl" id="bmdtl-'+safeId+'">'+texto+'</div>'
+    +'</div>';
+}
+
+function _toggleBmDtl(dtlId, btn){
+  var d = document.getElementById(dtlId);
+  if(!d) return;
+  d.classList.toggle('open');
+  if(btn) btn.textContent = d.classList.contains('open') ? 'Fechar' : 'Ver texto';
+}
+
+function _addDoBanco(chave, origemDid){
+  if(origemDid===_bmDid){
+    var row = document.getElementById(serviceElId('srw', chave));
+    if(row && !row.classList.contains('sel')) toggleSrv(chave, _bmDid);
+  } else {
+    var servicos = (DB.esp&&DB.esp.por_disciplina[origemDid])||[];
+    var s = servicos.find(function(sv){ return String(sv.CHAVE)===String(chave); });
+    if(!s) return;
+    var txtArea = document.getElementById('txt-'+_bmDid);
+    if(txtArea){
+      var line = (s.NOME_SERVICO||'') + (s.TEXTO_TECNICO ? ':\n'+s.TEXTO_TECNICO : '');
+      txtArea.value = txtArea.value ? txtArea.value+'\n\n'+line : line;
+    }
+  }
+  _renderBmBody();
+}
+
 // ─── INIT ──────────────────────────────────────────────────────────────────────
 restoreSessionProjects();
 renderDiscSelector();
@@ -3498,6 +3689,31 @@ setAutoDate();
 updatePjBadge();
 renderProjetos();
 autoLoadArquivos();
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') fecharBancoConsulta(); });
 </script>
+
+<!-- ── BANCO DE ESPECIFICAÇÕES — MODAL DE CONSULTA ─────────────────── -->
+<div class="bm-overlay" id="bancoModal" onclick="if(event.target===this)fecharBancoConsulta()">
+  <div class="bm-panel">
+    <div class="bm-head">
+      <div class="bm-head-info">
+        <h2>📚 Banco de Especificações</h2>
+        <p id="bm-context">Consulte e selecione serviços para a disciplina</p>
+      </div>
+      <button class="bm-close" onclick="fecharBancoConsulta()">✕</button>
+    </div>
+    <div class="bm-toolbar">
+      <div class="bm-disc-tabs" id="bm-disc-tabs"></div>
+      <input class="bm-search" id="bm-search" type="text" placeholder="Buscar por nome, norma ou texto técnico..." oninput="_renderBmBody()">
+    </div>
+    <div class="bm-body" id="bm-body">
+      <div class="bm-empty">Carregue o BANCO_ESPECIFICACOES.xlsx para visualizar os serviços.</div>
+    </div>
+    <div class="bm-footer">
+      <p>Clique em <strong>Usar</strong> para marcar o serviço na disciplina atual · <strong>Copiar texto</strong> para serviços de outras disciplinas</p>
+      <button class="btn btn-o" onclick="fecharBancoConsulta()">Fechar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
