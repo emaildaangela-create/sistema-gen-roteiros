@@ -1,0 +1,20 @@
+# Dependências
+node_modules/
+
+# Claude Code
+.claude/
+
+# Arquivos temporários e de inspeção
+*.txt
+inspect_*.py
+get_macros.py
+esp_fallback.js
+test_sheetjs.js
+sync_to_github_pages.py
+
+# Temporários do Word/Excel
+~$*
+
+# Python
+__pycache__/
+*.pyc
