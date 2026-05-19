@@ -278,12 +278,20 @@ body{font-family:var(--font);background:#edf2f7;color:var(--tx);min-height:100vh
 .wnav{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);margin-top:14px;gap:10px;border:1px solid var(--cib)}
 
 /* ── REVIEW ────────────────────────────────────────────────────────── */
-.rev-row{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--cib);align-items:flex-start}
-.rev-ico{font-size:13px;flex-shrink:0;margin-top:1px}
-.rev-lbl{font-size:10px;font-weight:700;color:var(--ci);min-width:175px;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px}
+.rev-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--cib);align-items:flex-start}
+.rev-ico{width:16px;flex-shrink:0;margin-top:1px;color:#718096;display:flex}
+.rev-ico [data-lucide]{width:14px;height:14px;stroke-width:1.75}
+.rev-lbl{font-size:10px;font-weight:700;color:var(--ci);min-width:175px;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px;padding-top:1px}
 .rev-val{font-size:12px;color:var(--tx);flex:1;line-height:1.4}
 .rev-empty{font-style:italic;color:#a0aec0}
-.rev-sec{font-size:10px;font-weight:700;color:var(--az);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.rev-sec{font-size:10px;font-weight:700;color:var(--az);margin:16px 0 6px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.rev-sec [data-lucide]{width:12px;height:12px;stroke-width:2.5;vertical-align:-1px}
+.rev-disc-card{border:1.5px solid var(--cib);border-radius:8px;overflow:hidden;margin-bottom:6px}
+.rev-disc-hdr{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--cic)}
+.rev-disc-hdr [data-lucide]{width:13px;height:13px;stroke-width:1.75;flex-shrink:0}
+.rev-disc-body{padding:8px 12px;border-top:1px solid var(--cib);display:flex;flex-direction:column;gap:3px}
+.rev-srv-item{font-size:11px;color:var(--ci);padding:2px 0;display:flex;align-items:baseline;gap:6px}
+.rev-srv-item::before{content:"—";color:#a0aec0;font-size:9px;flex-shrink:0}
 
 /* ── BANCO VISUALIZAR ──────────────────────────────────────────────── */
 .atab-bar{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
@@ -3352,34 +3360,121 @@ function collectData(){
 // ─── REVIEW ────────────────────────────────────────────────────────────────────
 function buildReview(){
   var d=collectData();
-  function rr(lbl,ico,val){
-    return '<div class="rev-row"><span class="rev-ico">'+ico+'</span><span class="rev-lbl">'+lbl+'</span>'
-      +'<span class="rev-val'+(val?'':' rev-empty')+'">'+(val||'(não preenchido)')+'</span></div>';
+
+  function rr(lbl, ico, val){
+    return '<div class="rev-row">'
+      +'<span class="rev-ico"><i data-lucide="'+ico+'"></i></span>'
+      +'<span class="rev-lbl">'+lbl+'</span>'
+      +'<span class="rev-val'+(val?'':' rev-empty')+'">'+(val ? htmlEsc(val) : '(não preenchido)')+'</span>'
+      +'</div>';
   }
-  var html='<div class="rev-sec">Identificação</div>'
-    +rr('Unidade','🏛️',d.UNIDADE)+rr('Serviço','🔧',d.SERVICO)
-    +rr('Regime','📋',d.REGIME_CONTRATACAO)+rr('Código','🔢',d.CODIGO)
-    +rr('Elaborado','👤',d.ELABORADO)
-    +rr('Verificado','✓',d.VERIFICADO)+rr('Aprovado','✓',d.APROVADO)
-    +'<div class="rev-sec">Contrato</div>'
-    +rr('Fiscal','👁️',d.FISCAL_CONTRATO)+rr('Gestor','📌',d.GESTOR_CONTRATO)
-    +rr('Prazo exec.','⏱️',d.PRAZO_EXECUCAO)+rr('Prazo vig.','📅',d.PRAZO_VIGENCIA)
-    +rr('Qualificação A','a)',d.QUANT_A)+rr('Qualificação B','b)',d.QUANT_B)
-    +rr('Qualificação C','c)',d.QUANT_C)+rr('Qualificação D','d)',d.QUANT_D)
-    +rr('Qualificação E','e)',d.QUANT_E)
-    +'<div class="rev-sec">Disciplinas</div>';
-  d.disciplinas_dados.forEach(function(dd){
-    var dc=DISC_CONFIG.find(function(x){ return x.id===dd.disciplina_id; });
-    html+='<div class="rev-row"><span class="rev-ico">'+(dc?dc.ico:'wrench')+'</span>'
-      +'<span class="rev-lbl">'+dd.disciplina_nome+'</span>'
-      +'<span class="rev-val">'
-      +(dd.delegado
-        ? '<span style="color:#805ad5;font-weight:700">DELEGADO</span> → '+ (dd.delegado_nome||'sem nome')
-        : 'RT: <b>'+(dd.responsavel_tecnico||'—')+'</b> · '+dd.servicos_selecionados.length+' serviço(s)'
-         +(dd.texto_adicional?' · <span style="color:var(--am)">+texto adicional</span>':'')
-       )+'</span></div>';
+
+  function sec(lbl, ico){
+    return '<div class="rev-sec"><i data-lucide="'+ico+'"></i> '+lbl+'</div>';
+  }
+
+  var html = sec('Identificação', 'landmark')
+    + rr('Unidade',     'building-2',     d.UNIDADE)
+    + rr('Serviço',     'wrench',          d.SERVICO)
+    + rr('Regime',      'file-text',       d.REGIME_CONTRATACAO)
+    + rr('Código',      'hash',            d.CODIGO)
+    + rr('Data',        'calendar',        d.DATA)
+    + rr('Revisão',     'refresh-cw',      d.REVISAO)
+
+    + sec('Responsáveis', 'users')
+    + rr('Elaborado',   'pencil',          d.ELABORADO)
+    + rr('Verificado',  'check',           d.VERIFICADO)
+    + rr('Aprovado',    'check-circle-2',  d.APROVADO)
+
+    + sec('Contrato', 'file-signature' in {} ? 'file-signature' : 'clipboard-list')
+    + rr('Fiscal do Contrato',  'eye',        d.FISCAL_CONTRATO)
+    + rr('Gestor do Contrato',  'briefcase',  d.GESTOR_CONTRATO)
+    + rr('Prazo de Execução',   'timer',      d.PRAZO_EXECUCAO)
+    + rr('Prazo de Vigência',   'calendar-clock', d.PRAZO_VIGENCIA)
+    + rr('Modalidade',          'gavel',      d.MODALIDADE_LICITACAO)
+    + rr('Endereço',            'map-pin',    d.ENDERECO);
+
+  // Qualificações — só mostra as preenchidas
+  var quals = [
+    {lbl:'Qualificação A', val:d.QUANT_A},
+    {lbl:'Qualificação B', val:d.QUANT_B},
+    {lbl:'Qualificação C', val:d.QUANT_C},
+    {lbl:'Qualificação D', val:d.QUANT_D},
+    {lbl:'Qualificação E', val:d.QUANT_E},
+  ].filter(function(q){ return q.val && q.val.trim(); });
+
+  if(quals.length){
+    html += sec('Qualificações Técnicas Exigidas', 'clipboard-check');
+    quals.forEach(function(q){ html += rr(q.lbl, 'award', q.val); });
+  }
+
+  // Serviços Principais
+  if(d.RELACAO_SERVICOS && d.RELACAO_SERVICOS.trim()){
+    html += sec('Principais Serviços do Escopo', 'list-checks');
+    d.RELACAO_SERVICOS.trim().split('\n').filter(Boolean).forEach(function(linha){
+      html += '<div class="rev-srv-item">'+htmlEsc(linha)+'</div>';
+    });
+  }
+
+  // Equipe Técnica
+  if(d.EQUIPE_TECNICA && d.EQUIPE_TECNICA.trim()){
+    html += sec('Equipe Técnica Mínima', 'hard-hat')
+      +'<div class="rev-row"><span class="rev-ico"><i data-lucide="users"></i></span>'
+      +'<span class="rev-val">'+htmlEsc(d.EQUIPE_TECNICA)+'</span></div>';
+  }
+
+  // Disciplinas com serviços selecionados
+  var discsComServicos = d.disciplinas_dados.filter(function(dd){
+    return dd.servicos_selecionados.length > 0 || dd.delegado || dd.texto_adicional;
   });
-  document.getElementById('review-content').innerHTML=html;
+
+  if(discsComServicos.length){
+    html += sec('Disciplinas e Serviços', 'layers');
+    discsComServicos.forEach(function(dd){
+      var dc = DISC_CONFIG.find(function(x){ return x.id===dd.disciplina_id; });
+      var cor = dc ? dc.cor : '#4a5568';
+      var ico = dc ? dc.ico : 'wrench';
+      html += '<div class="rev-disc-card" style="border-color:'+cor+'30">'
+        +'<div class="rev-disc-hdr" style="background:'+cor+'0d">'
+        +'<i data-lucide="'+ico+'" style="color:'+cor+'"></i>'
+        +'<span style="font-size:11px;font-weight:700;color:'+cor+';flex:1">'+htmlEsc(dd.disciplina_nome)+'</span>';
+
+      if(dd.delegado){
+        html += '<span style="font-size:9px;font-weight:700;background:#553c9a18;color:#553c9a;padding:2px 7px;border-radius:4px">DELEGADO</span>';
+      } else {
+        html += '<span style="font-size:9px;color:'+cor+';opacity:.7">'+dd.servicos_selecionados.length+' serviço(s)</span>';
+      }
+      html += '</div>';
+
+      if(dd.delegado){
+        html += '<div class="rev-disc-body"><span style="font-size:11px;color:#553c9a">'
+          +(dd.delegado_nome ? htmlEsc(dd.delegado_nome) : 'Responsável não informado')
+          +(dd.delegado_contato ? ' — '+htmlEsc(dd.delegado_contato) : '')
+          +'</span></div>';
+      } else if(dd.servicos_selecionados.length || dd.responsavel_tecnico || dd.texto_adicional){
+        html += '<div class="rev-disc-body">';
+        if(dd.responsavel_tecnico){
+          html += '<div style="font-size:10px;color:#718096;margin-bottom:4px"><b>RT:</b> '+htmlEsc(dd.responsavel_tecnico)+'</div>';
+        }
+        dd.servicos_selecionados.forEach(function(s){
+          html += '<div class="rev-srv-item">'+htmlEsc(s.NOME_SERVICO||s.CHAVE||'')+'</div>';
+        });
+        if(dd.texto_adicional){
+          html += '<div style="font-size:10px;color:var(--am);margin-top:4px;padding-top:4px;border-top:1px dashed var(--cib)"><b>Especificações adicionais:</b> '+htmlEsc(dd.texto_adicional)+'</div>';
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+    });
+  }
+
+  if(!discsComServicos.length){
+    html += sec('Disciplinas e Serviços', 'layers')
+      +'<div style="font-size:11px;color:#a0aec0;padding:10px 0">Nenhum serviço incluído ainda.</div>';
+  }
+
+  document.getElementById('review-content').innerHTML = html;
+  if(typeof lucide!=='undefined') lucide.createIcons();
 }
 
 // ─── SALVAR ────────────────────────────────────────────────────────────────────
